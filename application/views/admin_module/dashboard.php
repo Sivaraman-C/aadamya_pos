@@ -145,9 +145,14 @@ $this->load->view('master_pages/sidebar');
 					<div class="col-xl-3 col-sm-6 col-12 d-flex">
 						<div class="card bg-info revenue-widget flex-fill">
 							<div class="card-body">
+								<?php 
+									$query = $this->db->query("SELECT SUM(total) AS total_sales FROM order_items");
+									$totalSale = $query->row()->total_sales;
+									$totalSales = number_format($totalSale, 2);
+								?>
 								<div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
 									<div>
-										<h4 class="text-white mb-1"><i class="fa-solid fa-indian-rupee-sign"></i> 78,458,798</h4>
+										<h4 class="text-white mb-1"><i class="fa-solid fa-indian-rupee-sign"></i> <?php echo $totalSales; ?></h4>
 										<p class="text-white">Sales</p>
 									</div>
 									<span class="revenue-icon bg-indigo-transparent text-indigo">

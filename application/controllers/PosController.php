@@ -52,23 +52,23 @@ public function paymentComplete()
 
 public function save_order_with_items()
 {
+    $this->db->trans_start(); // Begin transaction
+
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true);
 
-    log_message('debug', 'Incoming Save Request: ' . print_r($data, true));
-
-    if (empty($data['order']) || empty($data['items'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Missing order or items']);
+    if (empty($data['order']) || empty($data['items']) || !is_array($data['items'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Missing or invalid order or items']);
+        $this->db->trans_complete(); // Rollback on failure
         return;
     }
 
-    // Map to actual DB columns
+    // Prepare order data
     $orderData = [
         'customer_id'    => $data['order']['customer_id'],
         'customer_name'  => $data['order']['customer_name'],
-        'phone'          => $data['order']['phone'],
         'contact'        => $data['order']['contact'],
-        'order_date'     => date('Y-m-d H:i:s'), // Use server date
+        'order_date'     => date('Y-m-d H:i:s'),
         'subtotal'       => $data['order']['subtotal'],
         'discount'       => $data['order']['discount'],
         'shipping'       => $data['order']['shipping'],
@@ -77,31 +77,79 @@ public function save_order_with_items()
         'invoice_number' => $data['order']['invoice_number']
     ];
 
-    $insertOrder = $this->db->insert('orders', $orderData);
+    // Insert order into orders table
+    $this->db->insert('orders', $orderData);
     $orderId = $this->db->insert_id();
 
-    if (!$insertOrder || !$orderId) {
-        log_message('error', 'Failed to insert order: ' . $this->db->last_query());
+    if (!$orderId) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to insert order']);
+        $this->db->trans_complete(); // Rollback on failure
         return;
     }
 
-    // Prepare order_items
-    foreach ($data['items'] as &$item) {
-        $item['order_id'] = $orderId;
+    // Prepare and validate order items
+    $orderItems = [];
+    foreach ($data['items'] as $item) {
+        if (empty($item['product_name']) || !isset($item['quantity'], $item['price'], $item['total'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid item data', 'item' => $item]);
+            $this->db->trans_complete(); // Rollback on failure
+            return;
+        }
+
+        // Lookup product ID by product_name
+        $this->db->where('product_name', $item['product_name']);
+        $product = $this->db->get('product')->row();
+
+        if (!$product) {
+            echo json_encode(['status' => 'error', 'message' => "Product not found: {$item['product_name']}"]);
+            $this->db->trans_complete(); // Rollback on failure
+            return;
+        }
+
+        // Prepare order item data
+        $orderItems[] = [
+            'order_id'   => $orderId,
+            'product_id' => $product->id,
+            'product_name'=> $product->product_name,
+            'quantity'   => $item['quantity'],
+            'price'      => $item['price'],
+            'total'      => $item['total']
+        ];
     }
 
-    $insertItems = $this->db->insert_batch('order_items', $data['items']);
-
-    if (!$insertItems) {
-        log_message('error', 'Failed to insert order items: ' . $this->db->last_query());
-        echo json_encode(['status' => 'error', 'message' => 'Failed to insert items']);
+    // Insert order items into order_items table
+    $inserted = $this->db->insert_batch('order_items', $orderItems);
+    if (!$inserted) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to insert order items']);
+        $this->db->trans_complete(); // Rollback on failure
         return;
     }
 
-    echo json_encode(['status' => 'success', 'order_id' => $orderId]);
+    // Update product quantities after the order is placed
+    foreach ($orderItems as $item) {
+        $this->db->where('id', $item['product_id']);
+        $product = $this->db->get('product')->row();
+
+        if ($product) {
+            $newQuantity = (int)$product->quantity - (int)$item['quantity'];
+            $newQuantity = max(0, $newQuantity);  // Prevent negative stock
+
+            // Update the product's quantity
+            $this->db->where('id', $item['product_id']);
+            $this->db->update('product', ['quantity' => $newQuantity]);
+        }
+    }
+
+    // Commit transaction if everything is successful
+    $this->db->trans_complete(); // Finalize transaction
+
+    // Check if transaction was successful
+    if ($this->db->trans_status() === FALSE) {
+        echo json_encode(['status' => 'error', 'message' => 'Transaction failed']);
+    } else {
+        echo json_encode(['status' => 'success', 'order_id' => $orderId]);
+    }
 }
-
 
 
 

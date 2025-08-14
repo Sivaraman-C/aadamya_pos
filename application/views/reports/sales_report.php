@@ -25,9 +25,9 @@
 					</div>
 					<div class="row">
 						<?php 
-							$query = $this->db->query("SELECT SUM(total_unit_price) AS total_purchase FROM product");
-							$totalPurchase = $query->row()->total_purchase;
-							$totalFormatted = number_format($totalPurchase, 2);
+							$query = $this->db->query("SELECT SUM(total) AS total_sales FROM order_items");
+							$totalsales = $query->row()->total_sales;
+							$totalSales = number_format($totalsales, 2);
 						?>
 						<div class="col-xl-3 col-sm-6 col-12 d-flex">
 							<div class="card border border-success sale-widget flex-fill">
@@ -38,7 +38,7 @@
 									<div class="ms-2">
 										<p class="fw-medium mb-1">Total Amount</p>
 										<div>
-											<h3><i class="fa-solid fa-indian-rupee-sign"></i> <?php echo $totalFormatted; ?></h3>
+											<h3><i class="fa-solid fa-indian-rupee-sign"></i> <?php echo $totalSales; ?></h3>
 										</div>
 									</div>
 								</div>
@@ -136,25 +136,22 @@
 										<tr>
 											<th>Id</th>
 											<th>Product Name</th>
-											<th>Brand</th>
-											<th>Category</th>
+											<th>Price</th>
 											<th>Sold Qty</th>
 											<th>Sold Amount</th>
-											<th>Instock Qty</th>
+											<!-- <th>Instock Qty</th> -->
 										</tr>
 									</thead>
 <tbody>
 		        	<?php 
-		        	$fetchMyProducts = $this->db->query("SELECT * FROM product");
+		        	$fetchMyProducts = $this->db->query("SELECT * FROM order_items");
 		        	foreach ($fetchMyProducts->result() as $row) { ?>
 		            <tr>
 		                <td><?php echo $row->id; ?></td>
-		                <td><img src="<?php echo $row->image; ?>" width='50' height='50' alt='Product Image'> <?php echo $row->product_name; ?></td>
-		                <td><?php echo $row->brand; ?></td>
-		                <td><?php echo $row->category; ?></td>
+		                <td><?php echo $row->product_name; ?></td>
+		                <td><?php echo $row->price; ?></td>
 		                <td><?php echo $row->quantity; ?></td>
-		                <td><?php echo $row->total_unit_price; ?></td>
-		                <td><?php echo $row->discount; ?></td>
+		                <td><?php echo $row->total; ?></td>
 		            </tr>
 		        <?php } ?>
 		        </tbody>

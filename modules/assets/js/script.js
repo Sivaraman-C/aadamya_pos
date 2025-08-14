@@ -2077,6 +2077,128 @@ function updateGSTandGrandTotal() {
   }
 }
 
+//
+
+document.addEventListener('DOMContentLoaded', () => {
+  const paymentBtn = document.querySelector('[data-bs-target="#payment-completed"]');
+
+  if (paymentBtn) {
+    paymentBtn.addEventListener('click', function (e) {
+      const productEls = document.querySelectorAll('.product-list');
+
+      if (productEls.length === 0) {
+        e.preventDefault();
+        alert("No products added to the order.");
+        window.location.href = "<?php echo base_url('Pointofsales'); ?>"; // Adjust if needed
+        return;
+      }
+
+      // Generate Invoice Number
+      const invoiceNumber = generateInvoiceNumber();
+
+      // Get customer and totals
+      const customerSelect = document.getElementById('customer-select');
+      const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+      const customerName = selectedOption.text;
+      const customerPhone = document.getElementById('customer-phone').value;
+      const customerCity = document.getElementById('customer-city').value;
+
+      // Fetch from data attributes
+      const customerId = selectedOption.getAttribute('data-id');
+      const customerCreated = selectedOption.getAttribute('data-created') || new Date().toLocaleDateString();
+
+      const subTotal = parseFloat(document.getElementById('sub-total').innerText) || 0;
+      const tax = parseFloat(document.getElementById('gst-amount').innerText) || 0;
+      const shipping = parseFloat(document.getElementById('shipping-amount').innerText) || 0;
+      const discount = parseFloat(document.getElementById('discount-amount').innerText) || 0;
+      const grandTotal = parseFloat(document.getElementById('grand-total').innerText) || 0;
+
+
+      document.getElementById('receipt-customer').innerText = customerName;
+      document.getElementById('receipt-phone').innerText = customerPhone;
+      document.getElementById('receipt-id').innerText = customerId;
+      document.getElementById('receipt-contact').innerText = customerPhone;
+      document.getElementById('receipt-date').innerText = new Date(customerCreated).toLocaleDateString();
+      document.getElementById('receipt-subtotal').innerText = subTotal.toFixed(2);
+      document.getElementById('receipt-discount').innerText = discount.toFixed(2);
+      document.getElementById('receipt-shipping').innerText = shipping.toFixed(2);
+      document.getElementById('receipt-tax').innerText = tax.toFixed(2);
+      document.getElementById('receipt-grandtotal').innerText = grandTotal.toFixed(2);
+      document.getElementById('receipt-due').innerText = '0.00';
+      document.getElementById('receipt-transaction').innerText = data.invoice_number;
+
+      // Show receipt modal
+      const receiptModal = new bootstrap.Modal(document.getElementById('print-receipt'));
+      receiptModal.show();
+
+      // Prepare order data
+const orderData = {
+  invoice_number: invoiceNumber,  // This should be passed correctly
+  customer_id: customerId,
+  customer_name: customerName,
+  customer_phone: customerPhone,
+  customer_city: customerCity,
+  products: products,
+  subtotal: subTotal,
+  discount: discount,
+  shipping: shipping,
+  tax: tax,
+  grand_total: grandTotal
+};
+
+console.log('Order Data:', orderData);  // Log the data before sending
+
+// Send the data to the backend (AJAX request)
+fetch("<?php echo base_url('Pointofsales/save_invoice'); ?>", {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(orderData)
+})
+.then(response => response.json())
+.then(data => {
+  if (data.success) {
+    console.log('Invoice saved successfully');
+    document.getElementById('receipt-transaction').innerText = data.invoice_number; // Display invoice number in modal
+  } else {
+    console.error('Error saving invoice:', data.message);
+  }
+})
+.catch(error => console.error('Error:', error));
+    });
+  }
+
+
+
+  // Populate phone and city when customer is selected
+  const customerSelect = document.getElementById('customer-select');
+  const phoneInput = document.getElementById('customer-phone');
+  const cityInput = document.getElementById('customer-city');
+
+  if (customerSelect) {
+    customerSelect.addEventListener('change', function () {
+      const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+      const phone = selectedOption.getAttribute('data-phone');
+      const city = selectedOption.getAttribute('data-city');
+      const customerId = selectedOption.getAttribute('data-id');
+      const customerCreated = selectedOption.getAttribute('data-created');
+
+      phoneInput.value = phone || '';
+      cityInput.value = city || '';
+
+      // Optional: Update customer information on selection (for display in receipt or other parts)
+      document.getElementById('receipt-id').innerText = customerId || "N/A";
+      document.getElementById('receipt-contact').innerText = phone || "N/A";
+      document.getElementById('receipt-date').innerText = customerCreated ? new Date(customerCreated).toLocaleDateString() : new Date().toLocaleDateString();
+    });
+  }
+});
+
+
+//
+
+
 document.addEventListener("DOMContentLoaded", function () {
   const receivedInput = document.getElementById("received-amount");
   const cashPayInput = document.getElementById("cashpay-total");
@@ -2163,7 +2285,6 @@ function generateInvoiceNumber() {
   }
 
 
-
 function handleSubmit() {
   // Close the current modal (cash payment)
   const cashModal = bootstrap.Modal.getInstance(document.getElementById('payment-cash'));
@@ -2227,7 +2348,7 @@ function showReceipt() {
   printModal.show();
 }
 
-
+// payment and save db
 function saveOrderFromReceipt() {
     const order = {
         customer_id: document.getElementById('receipt-id').innerText.trim() || 0,
