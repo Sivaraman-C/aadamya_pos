@@ -1,8 +1,8 @@
 <?php 
-// if(!isset($_SESSION['activeAdmin']))
-// {
-// 	redirect(base_url());
-// }
+if(!isset($_SESSION['activeAdmin']))
+{
+	redirect(base_url());
+}
 
 ?>
 

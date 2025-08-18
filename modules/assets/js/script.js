@@ -2419,6 +2419,7 @@ function saveOrderFromReceipt() {
 
 
 
+
 //Print receipt
 
   function printReceipt() {

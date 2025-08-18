@@ -430,92 +430,92 @@ $this->load->view('master_pages/pos_header'); ?>
 
 		<!-- Print Receipt -->
 		<div class="modal fade modal-default" id="print-receipt" aria-labelledby="print-receipt">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body">
-      	<div id="print-section">
-        <div class="icon-head text-center">
-          <a href="javascript:void(0);">
-            <img src="<?php echo base_url(); ?>modules/assets/img/logo.svg" width="100" height="30" alt="Receipt Logo">
-          </a>
-        </div>
-        <div class="text-center info text-center">
-          <h6>Dreamguys Technologies Pvt Ltd.,</h6>
-          <p class="mb-0"><strong>Phone Number:</strong> <span id="receipt-phone">-</span></p>
-          <p class="mb-0">Email: support@example.com</p>
-        </div>
-        <div class="tax-invoice">
-          <h6 class="text-center">Tax Invoice</h6>
-          <div class="row">
-<div class="col-sm-12 col-md-6">
-  <div class="invoice-user-name"><span>Name: </span><span id="receipt-customer">Walk-in</span></div>
-  <div class="invoice-user-name"><span>Invoice No: </span><span id="receipt-transaction">#00000</span></div>
-</div>
-            <div class="col-sm-12 col-md-6">
-			  <div class="invoice-user-name"><span>Customer Id: </span>#CUS00<span id="receipt-id"></span></div>
-			  <div class="invoice-user-name"><span>Contact: </span><span id="receipt-contact"></span></div>
-			  <div class="invoice-user-name"><span>Date: </span><span id="receipt-date"></span></div>
-			</div>
-          </div>
-        </div>
-        <table class="table-borderless w-100 table-fit">
-          <thead>
-            <tr>
-              <th># Item</th>
-              <th>Price</th>
-              <th>Qty</th>
-              <th class="text-end">Total</th>
-            </tr>
-          </thead>
-          <tbody id="receipt-products">
-          </tbody>
-          <tr>
-            <td colspan="4">
-              <table class="table-borderless w-100 table-fit">
-                <tr>
-                  <td class="fw-bold">Sub Total :</td>
-                  <td class="text-end">₹<span id="receipt-subtotal">0.00</span></td>
-                </tr>
-                <tr>
-                  <td class="fw-bold">Discount :</td>
-                  <td class="text-end">- ₹<span id="receipt-discount">0.00</span></td>
-                </tr>
-                <tr>
-                  <td class="fw-bold">Shipping :</td>
-                  <td class="text-end">₹<span id="receipt-shipping">0.00</span></td>
-                </tr>
-                <tr>
-                  <td class="fw-bold">Tax :</td>
-                  <td class="text-end">₹<span id="receipt-tax">0.00</span></td>
-                </tr>
-                <tr>
-                  <td class="fw-bold">Total Payable :</td>
-                  <td class="text-end">₹<span id="receipt-grandtotal">0.00</span></td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
-    </div>
-        <div class="text-center invoice-bar">
-          <div class="border-bottom border-dashed">
-            <p>**VAT against this challan is payable through central registration. Thank you for your business!</p>
-          </div>
-          <a href="javascript:void(0);">
-            <img src="<?php echo base_url(); ?>modules/assets/img/barcode/barcode-03.jpg" alt="Barcode">
-          </a>
-          <p class="text-dark fw-bold">Sale</p>
-          <p>Thank You For Shopping With Us. Please Come Again</p>
-          
-        </div>
-        <div class="text-center invoice-bar">
-          
-          <a href="javascript:void(0);" id="printReceiptBtn" class="btn btn-md btn-primary" onclick="printReceipt()">Print Receipt</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+		  <div class="modal-dialog modal-dialog-centered">
+		    <div class="modal-content">
+		      <div class="modal-body">
+		      	<div id="print-section">
+		        <div class="icon-head text-center">
+		          <a href="javascript:void(0);">
+		            <img src="<?php echo base_url(); ?>modules/assets/img/logo.svg" width="100" height="30" alt="Receipt Logo">
+		          </a>
+		        </div>
+		        <div class="text-center info text-center">
+		          <h6>Dreamguys Technologies Pvt Ltd.,</h6>
+		          <p class="mb-0"><strong>Phone Number:</strong> <span id="receipt-phone">-</span></p>
+		          <p class="mb-0">Email: support@example.com</p>
+		        </div>
+		        <div class="tax-invoice">
+		          <h6 class="text-center">Tax Invoice</h6>
+		          <div class="row">
+					<div class="col-sm-12 col-md-6">
+					  <div class="invoice-user-name"><span>Name: </span><span id="receipt-customer">Walk-in</span></div>
+					  <div class="invoice-user-name"><span>Invoice No: </span><span id="receipt-transaction">#00000</span></div>
+					</div>
+		            <div class="col-sm-12 col-md-6">
+					  <div class="invoice-user-name"><span>Customer Id: </span>#CUS00<span id="receipt-id"></span></div>
+					  <div class="invoice-user-name"><span>Contact: </span><span id="receipt-contact"></span></div>
+					  <div class="invoice-user-name"><span>Date: </span><span id="receipt-date"></span></div>
+					</div>
+		          </div>
+		        </div>
+		        <table class="table-borderless w-100 table-fit">
+		          <thead>
+		            <tr>
+		              <th># Item</th>
+		              <th>Price</th>
+		              <th>Qty</th>
+		              <th class="text-end">Total</th>
+		            </tr>
+		          </thead>
+		          <tbody id="receipt-products">
+		          </tbody>
+		          <tr>
+		            <td colspan="4">
+		              <table class="table-borderless w-100 table-fit">
+		                <tr>
+		                  <td class="fw-bold">Sub Total :</td>
+		                  <td class="text-end">₹<span id="receipt-subtotal">0.00</span></td>
+		                </tr>
+		                <tr>
+		                  <td class="fw-bold">Discount :</td>
+		                  <td class="text-end">- ₹<span id="receipt-discount">0.00</span></td>
+		                </tr>
+		                <tr>
+		                  <td class="fw-bold">Shipping :</td>
+		                  <td class="text-end">₹<span id="receipt-shipping">0.00</span></td>
+		                </tr>
+		                <tr>
+		                  <td class="fw-bold">Tax :</td>
+		                  <td class="text-end">₹<span id="receipt-tax">0.00</span></td>
+		                </tr>
+		                <tr>
+		                  <td class="fw-bold">Total Payable :</td>
+		                  <td class="text-end">₹<span id="receipt-grandtotal">0.00</span></td>
+		                </tr>
+		              </table>
+		            </td>
+		          </tr>
+		        </table>
+		    </div>
+		        <div class="text-center invoice-bar">
+		          <div class="border-bottom border-dashed">
+		            <p>**VAT against this challan is payable through central registration. Thank you for your business!</p>
+		          </div>
+		          <a href="javascript:void(0);">
+		            <img src="<?php echo base_url(); ?>modules/assets/img/barcode/barcode-03.jpg" alt="Barcode">
+		          </a>
+		          <p class="text-dark fw-bold">Sale</p>
+		          <p>Thank You For Shopping With Us. Please Come Again</p>
+		          
+		        </div>
+		        <div class="text-center invoice-bar">
+		          
+		          <a href="javascript:void(0);" id="printReceiptBtn" class="btn btn-md btn-primary" onclick="printReceipt()">Print Receipt</a>
+		        </div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 		<!-- /Print Receipt -->
 
 		

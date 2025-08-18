@@ -90,7 +90,7 @@
 										                <td><?php echo $row->product_name; ?></td>
 										                <td><?php echo $row->category; ?></td>
 										                <td><?php echo $row->brand; ?></td>
-										                <td><?php echo $row->price; ?></td>
+										                <td><?php echo $row->unit_price; ?></td>
 										                <td><?php echo $row->discount; ?></td>
 										                <td><?php echo $row->discount_amount; ?></td>
 										                <td><?php echo $row->final_price; ?></td>
