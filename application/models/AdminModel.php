@@ -98,7 +98,7 @@ public function adminLogin()
                 ));
 
                 $sid = "ACf6ad999ecf6afb07fe22ac15cf5222be";
-                $token = "b4afc323bc53b369b3edacc555e787b4";
+                $token = "28ac730e639a2df53cd64d4e98658cdf";
                 $twilio = new Client($sid, $token);
 
                 $customMessage = "Your OTP is " . $mobile_otp;
@@ -171,21 +171,25 @@ public function OTPVerification()
     $enteredOTP = $_POST['recived_mobile_otp'];
     $contactNo = $_SESSION['activeAdmin'];
 
+    // Fetch OTP and expiry time from database
     $fetchMyOTP = $this->db->query("SELECT * FROM register_seller WHERE contact_no = '$contactNo'");
     foreach ($fetchMyOTP->result() as $row)
     {
         $otp = $row->mobile_otp;
         $otpExpiryTime = $row->otp_expiration_time;
+
+        // Set timezone to Asia/Kolkata for comparison
         $presentTimeZone = new DateTimeZone('Asia/Kolkata');
+        $currentTime = new DateTime('now', $presentTimeZone);
 
-        $defaultTime = new DateTime('now', $presentTimeZone);
-
-        $zoneTime = $defaultTime->format('d-m-Y H:i:s');
+        // Convert OTP expiry time to DateTime object
+        $otpExpiryDateTime = new DateTime($otpExpiryTime, $presentTimeZone);
     }
 
     if(isset($_POST['OTPVerify']))
     {
-        if ($zoneTime > $otpExpiryTime)
+        // Compare the current time with the OTP expiry time
+        if ($currentTime > $otpExpiryDateTime)
         {
             echo "<script>alert('OTP TimeOut. Please try again.');window.location.href='" . base_url('signin') . "'</script>";
         }
@@ -196,7 +200,7 @@ public function OTPVerification()
                     $this->db->where('contact_no', $contactNo);
                     $this->db->update('register_seller', array(
                         'mobile_otp' => $enteredOTP,
-                        'otp_expiration_time' => $otpExpiryTime,
+                        'otp_expiration_time' => $otpExpiryDateTime->format('Y-m-d H:i:s'),
                         'mobile_verified_status' => 'active'
                     ));
 
@@ -206,10 +210,9 @@ public function OTPVerification()
                 echo "<script>alert('Invalid OTP. Please try again.');window.location.href='" . base_url('otp_verification') . "'</script>";
             }
         }
-            
-       
     }
 }
+
 
 
 // Register User

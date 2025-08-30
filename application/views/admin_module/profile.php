@@ -49,7 +49,7 @@
 													</div>
 												</div>
 												<div class="phone-img">
-													<img src="<?php echo $row->image; ?>">
+													<img src="">
 													<a href="javascript:void(0);">
 														<i data-feather="x" class="x-square-add remove-product">
 														</i>
@@ -99,7 +99,7 @@
 											*
 										</span>
 									</label>
-									<input type="text" value="<?php echo $row->contact_no; ?>" class="form-control">
+									<input type="text" value=""class="form-control">
 								</div>
 							</div>
 							<div class="col-12 d-flex justify-content-end">

@@ -27,7 +27,7 @@ class InventoryController extends CI_Controller
 	//Display products
 	public function displayProduct()
 	{
-	    $this->load->view('inventory/product_list', $data);
+	    $this->load->view('inventory/product_list');
 	}
 
 	public function viewDetails()

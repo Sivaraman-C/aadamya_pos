@@ -107,38 +107,44 @@
                         aria-labelledby="pills-home-tab">
                         <div class="single-product">
                         <div class="row">
-                          <div class="col-lg-4 col-sm-6 col-12">
+                          <div class="col-lg-3 col-sm-6 col-12">
                             <div class="mb-3">
                               <label class="form-label">Quantity<span class="text-danger ms-1">*</span></label>
                               <input type="text" class="form-control" id="productQty" name="productQty" value="<?php echo $row->quantity; ?>" oninput="calcuDiscount()" min="1" required>
                             </div>
                           </div>
-                          <div class="col-lg-4 col-sm-6 col-12">
+                          <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="mb-3">
+                              <label class="form-label">Cost Price<span class="text-danger ms-1">*</span></label>
+                              <input type="number" class="form-control" id="costPrice" name="costPrice" value="<?php echo $row->cost_price; ?>" oninput="" min="1" required>
+                            </div>
+                          </div>
+                          <div class="col-lg-3 col-sm-6 col-12">
                             <div class="mb-3">
                               <label class="form-label">Price<span class="text-danger ms-1">*</span></label>
                               <input type="number" class="form-control" id="productPrice" name="productPrice" value="<?php echo $row->unit_price; ?>" oninput="calcuDiscount()" min="1" required>
                             </div>
                           </div>
-                          <div class="col-lg-4 col-sm-6 col-12">
+                          <div class="col-lg-3 col-sm-6 col-12">
                             <div class="mb-3">
                               <label class="form-label">Total Price<span class="text-danger ms-1">*</span></label>
                               <input type="number" class="form-control" id="totalunitPrice" name="totalunitPrice" value="<?php echo $row->total_unit_price; ?>" min="1">
                             </div>
                           </div>
                   
-                          <div class="col-lg-4 col-sm-6 col-12">
+                          <div class="col-lg-3 col-sm-6 col-12">
                             <div class="mb-3">
                               <label class="form-label">Discount %<span class="text-danger ms-1">*</span></label>
                               <input type="text" class="form-control" id="discountPercentage" name="discountPercentage" value="<?php echo $row->discount; ?>" oninput="calcuDiscount()" required>
                             </div>
                           </div>
-                          <div class="col-sm-6 col-12">
+                          <div class="col-lg-3 col-sm-6 col-12">
                             <div class="mb-3">
                               <label class="form-label">Discount Amount<span class="text-danger ms-1">*</span></label>
                               <input class="form-control" type="text" id="discountAmount" name="discountAmount" value="<?php echo $row->discount_amount; ?>" readonly>
                             </div>
                           </div>
-                          <div class="col-sm-6 col-12">
+                          <div class="col-lg-3 col-sm-6 col-12">
                             <div class="mb-3">
                               <label class="form-label">Final Price<span class="text-danger ms-1">*</span></label>
                               <input class="form-control" type="text" id="finalPrice" name="finalPrice" value="<?php echo $row->final_price; ?>" readonly>

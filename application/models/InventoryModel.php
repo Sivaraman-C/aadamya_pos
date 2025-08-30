@@ -20,6 +20,7 @@ public function addData()
     $category = $_POST['productCategory'];
     $brand = $_POST['productBrand'];
     $quantity = $_POST['productQty'];
+    $costprice = $_POST['costPrice'];
     $price = $_POST['productPrice'];
     $totalprice = $_POST['totalunitPrice'];
     $discount = $_POST['discountPercentage'];
@@ -51,6 +52,7 @@ public function addData()
                     'category' => $category,
                     'brand' => $brand,
                     'quantity' => $quantity,
+                    'cost_price' => $costprice,
                     'unit_price' => $price,
                     'total_unit_price' => $totalprice,
                     'discount' => $discount,
@@ -87,6 +89,7 @@ public function addData()
 	    $category     = $_POST['productCategory'];
 	    $brand        = $_POST['productBrand'];
 	    $quantity     = $_POST['productQty'];
+	    $costprice    = $_POST['costPrice'];
 	    $price        = $_POST['productPrice'];
     	$totalprice   = $_POST['totalunitPrice'];
 	    $discount     = $_POST['discountPercentage'];
@@ -122,7 +125,7 @@ public function addData()
 
 	    if (isset($_POST['updateProduct']))
 	    {
-	        $this->db->query("UPDATE product SET product_name = '$productName', category = '$category', brand = '$brand', quantity = '$quantity', unit_price = '$price', total_unit_price = '$totalprice', discount = '$discount', discount_amount = '$discAmount', final_price = '$finalPrice', image = '$imageAddress' WHERE id = '$pid'");
+	        $this->db->query("UPDATE product SET product_name = '$productName', category = '$category', brand = '$brand', quantity = '$quantity', cost_price = '$costprice', unit_price = '$price', total_unit_price = '$totalprice', discount = '$discount', discount_amount = '$discAmount', final_price = '$finalPrice', image = '$imageAddress' WHERE id = '$pid'");
 
 	        echo "<script>alert('Product Updated successfully');window.location.href='" . base_url('product_list') . "'</script>";
 	    }

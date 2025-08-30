@@ -1902,7 +1902,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="info">
               <span>${id}</span>
               <h6>${name}</h6>
-              <p class="fw-bold text-teal total-price">$${price}</p>
+              <p class="fw-bold text-teal total-price"><i class="fa-solid fa-indian-rupee-sign"></i>${price}</p>
             </div>
           </div>
           <div class="qty-item text-center">
@@ -1957,7 +1957,9 @@ document.addEventListener('DOMContentLoaded', function () {
       else if (decBtn && qty > 1) qty--;
 
       input.value = qty;
-      productEl.querySelector('.total-price').textContent = `$${(price * qty).toFixed(2)}`;
+      productEl.querySelector('.total-price').innerHTML = 
+  `<i class="fa-solid fa-indian-rupee-sign"></i>${(price * qty).toFixed(2)}`;
+
       updateSubTotal();
     }
 

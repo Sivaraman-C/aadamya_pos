@@ -45,7 +45,8 @@
 						<th>Category</th>
 						<th>Brand</th>
 						<th>Quantity</th>
-						<th>Price</th>
+						<th>Cost Price</th>
+						<th>Unit Price</th>
 						<th>Total Unit Price</th>
 						<th>Discount</th>
 						<th>Discount Amount</th>
@@ -64,6 +65,7 @@
 		                <td><?php echo $row->category; ?></td>
 		                <td><?php echo $row->brand; ?></td>
 		                <td><?php echo $row->quantity; ?></td>
+		                <td><?php echo $row->cost_price; ?></td>
 		                <td><?php echo $row->unit_price; ?></td>
 		                <td><?php echo $row->total_unit_price; ?></td>
 		                <td><?php echo $row->discount; ?></td>
@@ -93,7 +95,8 @@
 						<th>Category</th>
 						<th>Brand</th>
 						<th>Quantity</th>
-						<th>Price</th>
+						<th>Cost Price</th>
+						<th>Unit Price</th>
 						<th>Total Unit Price</th>
 						<th>Discount</th>
 						<th>DIscount Amount</th>

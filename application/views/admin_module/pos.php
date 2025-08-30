@@ -98,7 +98,7 @@ $this->load->view('master_pages/pos_header'); ?>
 										                        <h6 class="product-name"><?= $row->product_name; ?></h6>
 										                        <div class="d-flex align-items-center justify-content-between price">
 										                            <span><?= $row->quantity; ?> pcs</span>
-										                            <p>$<?= number_format($row->unit_price, 2); ?></p>
+										                            <p><i class="fa-solid fa-indian-rupee-sign"></i><?= number_format($row->unit_price, 2); ?></p>
 										                        </div>
 										                    </div>
 										                </div>
@@ -126,7 +126,7 @@ $this->load->view('master_pages/pos_header'); ?>
 															    <h6 class="product-name"><?php echo $row->product_name; ?></h6>
 															    <div class="d-flex align-items-center justify-content-between price">
 															        <span><?php echo $row->quantity; ?> pcs</span>
-															        <p>$<?php echo number_format($row->unit_price, 2); ?></p>
+															        <p><i class="fa-solid fa-indian-rupee-sign"></i><?php echo number_format($row->unit_price, 2); ?></p>
 															    </div>
 															</div>
 										                </div>

@@ -1,3 +1,4 @@
+
     <?php
       $this->load->view('master_pages/header');
       $this->load->view('master_pages/sidebar');
@@ -101,8 +102,14 @@
                           </div>
                           <div class="col-lg-4 col-sm-6 col-12">
                             <div class="mb-3">
-                              <label class="form-label">Price<span class="text-danger ms-1">*</span></label>
-                              <input type="number" class="form-control" id="productPrice" name="productPrice" oninput="calcuTotalUnitPrice()" min="1" required>
+                              <label class="form-label">Cost Price<span class="text-danger ms-1">*</span></label>
+                              <input type="number" class="form-control" id="costPrice" name="costPrice" oninput="calcuTotalUnitPrice()" min="1" required>
+                            </div>
+                          </div>
+                          <div class="col-lg-4 col-sm-6 col-12">
+                            <div class="mb-3">
+                              <label class="form-label">Unit Price<span class="text-danger ms-1">*</span></label>
+                              <input type="number" class="form-control" id="productPrice" name="productPrice" oninput="" min="1" required>
                             </div>
                           </div>
                           <div class="col-lg-4 col-sm-6 col-12">

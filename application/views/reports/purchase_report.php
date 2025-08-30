@@ -123,8 +123,8 @@
 								                <td><?php echo $row->category; ?></td>
 								                <td><?php echo $row->brand; ?></td>
 								                <td><?php echo $row->quantity; ?></td>
-								                <td><?php echo $row->unit_price; ?></td>
-								                <td><?php echo $row->total_unit_price; ?></td>
+								                <td><?php echo $row->price; ?></td>
+								                <td><?php echo $row->total_price; ?></td>
 								                <td><?php echo $row->discount; ?> %</td>
 								                <td><?php echo $row->final_price; ?></td>
 								            </tr>
