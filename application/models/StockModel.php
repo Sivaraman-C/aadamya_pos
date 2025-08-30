@@ -68,9 +68,16 @@ class StockModel extends CI_Model
 
 	public function stockDelete()
 	{
-		$pid = $_GET['id'];
+	    $pid = $_GET['id'];
+
+	    // Step 1: Delete the dependent order items first
+	    $this->db->where('product_id', $pid);
+	    $this->db->delete('order_items');
+
+	    // Step 2: Delete the product
 	    return $this->db->where('id', $pid)->delete('product');
 	}
+
 
 
 

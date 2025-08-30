@@ -25,65 +25,7 @@
 								</li>
 							</ul>
 						</div>
-						<div class="card">
-							<div class="card-body pb-1">
-								<form action="customer-report.html">
-									<div class="row align-items-end">
-										<?php
-
-										$categories = $this->db->query("SELECT DISTINCT category FROM product")->result();
-
-										$products = $this->db->query("SELECT DISTINCT product_name FROM product")->result();
-										$brands = $this->db->query("SELECT DISTINCT brand FROM product")->result();
-
-										?>
-										<div class="col-lg-10">
-											<div class="row">
-												<div class="col-md-3">
-													<div class="mb-3">
-													    <label class="form-label">Category</label>
-													    <select class="select form-control" name="Category">
-													        <option value="">All</option>
-													        <?php foreach ($categories as $cat): ?>
-													            <option value="<?php echo $cat->category; ?>">
-													                <?php echo ucfirst($cat->category); ?>
-													            </option>
-													        <?php endforeach; ?>
-													    </select>
-													</div>
-												</div>
-												<div class="col-md-3">
-													<div class="mb-3">
-														<label class="form-label">Products</label>
-														<select class="select form-control" name="ProductName">
-													        <option value="">All</option>
-													        <?php foreach ($products as $product): ?>
-													            <option value="<?php echo $product->product_name; ?>">
-													                <?php echo ucfirst($product->product_name); ?>
-													            </option>
-													        <?php endforeach; ?>
-													    </select>
-													</div>
-												</div>
-												<div class="col-md-3">
-													<div class="mb-3">
-														<label class="form-label">Brand</label>
-														<select class="select form-control" name="Brand">
-													        <option value="">All</option>
-													        <?php foreach ($brands as $brand): ?>
-													            <option value="<?php echo $brand->brand; ?>">
-													                <?php echo ucfirst($brand->brand); ?>
-													            </option>
-													        <?php endforeach; ?>
-													    </select>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
+						
 						
 						<div class="card no-search">
 							<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
@@ -92,10 +34,14 @@
 								</div>
 								<ul class="table-top-head">
 									<li class="me-2">
-										<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img src="<?php echo base_url(); ?>modules/assets/img/icons/pdf.svg" alt="img"></a>
+										<a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf" onclick="exportTableToPDF()">
+									  <img src="modules/assets/img/icons/pdf.svg" alt="img">
+									</a>
 									</li>
 									<li class="me-2">
-										<a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel"><img src="<?php echo base_url(); ?>modules/assets/img/icons/excel.svg" alt="img"></a>
+										<a href="javascript:void(0);" onclick="exportAllPagesToExcel('inventory-report')" title="Export All to Excel">
+									  <img src="modules/assets/img/icons/excel.svg" alt="Excel">
+									</a>
 									</li>
 									<li>
 										<a data-bs-toggle="tooltip" data-bs-placement="top" title="Print"><i class="ti ti-printer"></i></a>
@@ -104,7 +50,7 @@
 							</div>
 							<div class="card-body p-0">
 								<div class="table-responsive">
-									<table id="example" class="display">
+									<table id="inventory-report" class="table datatable">
 										<thead class="thead-light">
 											<tr>
 												<th>Id</th>
@@ -139,9 +85,174 @@
         </div>
 		<!-- /Main Wrapper -->
 
-<script>
+		<script>
+		// PDF and EXCEL Generation
+
+		async function exportTableToPDF() {
+		const { jsPDF } = window.jspdf;
+		const doc = new jsPDF('l', 'pt', 'a4');
+		const table = $('#inventory-report').DataTable();
+
+		// Extract headers (excluding the last "Action" column)
+		const headers = $('#inventory-report thead th').toArray()
+		.slice(0, -1)
+		.map(th => $(th).text().trim());
+
+		const body = [];
+		const data = table.rows().data().toArray();
+
+		// Process each row
+		for (const row of data) {
+		const rowData = [];
+
+		for (let i = 0; i < row.length - 1; i++) {
+		const cellHTML = $('<div>').html(row[i]);
+		const img = cellHTML.find('img');
+
+		if (img.length > 0) {
+		const base64 = await toDataURL(img.attr('src'));
+		rowData.push({ imageBase64: base64 });
+		} else {
+		rowData.push(cellHTML.text().trim());
+		}
+		}
+
+		body.push(rowData);
+		}
+
+		// Generate PDF
+		doc.setFontSize(14);
+		doc.text("Inventory Report", 40, 40);
+
+		await doc.autoTable({
+		head: [headers],
+		body: body,
+		startY: 60,
+		theme: 'grid',
+		headStyles: {
+		fillColor: [52, 73, 94],
+		textColor: [255, 255, 255],
+		fontSize: 10
+		},
+		bodyStyles: { fontSize: 9 },
+		margin: { top: 60, bottom: 40 },
+
+		// Prevent object object showing
+		didParseCell(data) {
+		if (typeof data.cell.raw === 'object' && data.cell.raw?.imageBase64) {
+		data.cell.text = '';
+		}
+		},
+
+		// Draw image manually
+		didDrawCell(data) {
+		const cell = data.cell.raw;
+		if (typeof cell === 'object' && cell.imageBase64) {
+		doc.addImage(
+		cell.imageBase64,
+		'JPEG',
+		data.cell.x + 9,
+		data.cell.y + 1,
+		25, // width
+		20  // height
+		);
+		}
+		},
+
+		// Page footer
+		didDrawPage(data) {
+		const { width, height } = doc.internal.pageSize;
+		doc.setFontSize(10);
+		doc.text(`Page ${doc.internal.getNumberOfPages()}`, width - 60, height - 20);
+		}
+		});
+
+		doc.save("inventory_report.pdf");
+		}
+
+		// Convert image URL to base64
+		function toDataURL(url) {
+		return new Promise((resolve) => {
+		const img = new Image();
+		img.crossOrigin = "anonymous";
+		img.onload = function () {
+		const canvas = document.createElement("canvas");
+		canvas.width = this.naturalWidth;
+		canvas.height = this.naturalHeight;
+		canvas.getContext("2d").drawImage(this, 0, 0);
+		resolve(canvas.toDataURL("image/jpeg"));
+		};
+		img.onerror = () => resolve(null);
+		img.src = url;
+		});
+		}
+
+
+		// Excel
+
+		function exportAllPagesToExcel(tableID, filename = 'inventory_report.xlsx') {
+		const table = $('#' + tableID).DataTable();
+		const allRows = table.rows().data().toArray();
+
+		const originalTable = document.getElementById(tableID);
+		const exportTable = document.createElement('table');
+
+		// Clone header and remove "Action" column (last <th>)
+		const clonedThead = originalTable.querySelector('thead').cloneNode(true);
+		clonedThead.querySelectorAll('tr').forEach(tr => {
+		const lastTh = tr.lastElementChild;
+		if (lastTh) lastTh.remove(); // remove Action column
+		});
+		exportTable.appendChild(clonedThead);
+
+		const tbody = document.createElement('tbody');
+
+		allRows.forEach(row => {
+		const tr = document.createElement('tr');
+		for (let i = 0; i < row.length - 1; i++) { // skip last cell (Action column)
+		const td = document.createElement('td');
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = row[i];
+		const img = tempDiv.querySelector('img');
+		td.textContent = img ? img.src : tempDiv.textContent || '';
+		tr.appendChild(td);
+		}
+		tbody.appendChild(tr);
+		});
+
+		exportTable.appendChild(tbody);
+
+		// Convert to SheetJS workbook
+		const workbook = XLSX.utils.table_to_book(exportTable, { sheet: "Products" });
+		const worksheet = workbook.Sheets["Products"];
+
+		// Auto-adjust column widths
+		const colWidths = [];
+		const rows = [...exportTable.querySelectorAll('tr')].map(tr =>
+		[...tr.children].map(td => td.textContent.trim())
+		);
+
+		const numCols = rows[0]?.length || 0;
+
+		for (let col = 0; col < numCols; col++) {
+		let maxLength = 10;
+		rows.forEach(row => {
+		const cellText = row[col] || "";
+		maxLength = Math.max(maxLength, cellText.length);
+		});
+		colWidths.push({ wch: maxLength + 2 });
+		}
+
+		worksheet['!cols'] = colWidths;
+
+		XLSX.writeFile(workbook, filename);
+		}
+
+		</script>
+
+<!-- <script>
 	new DataTable('#example');
-</script>
+</script> -->
 
 <?php 
 	$this->load->view('master_pages/footer');
