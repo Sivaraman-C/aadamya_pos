@@ -98,7 +98,7 @@ public function adminLogin()
                 ));
 
                 $sid = "ACf6ad999ecf6afb07fe22ac15cf5222be";
-                $token = "28ac730e639a2df53cd64d4e98658cdf";
+                $token = "fa352058a89af30d85edaf8b371ff842";
                 $twilio = new Client($sid, $token);
 
                 $customMessage = "Your OTP is " . $mobile_otp;
@@ -391,6 +391,39 @@ public function AdminLogout()
     redirect(base_url('signin'));
 }
 
+// DASHBOARD TOP CATOGRIES CHART
+
+    // ✅ Get total number of categories
+    public function get_total_categories() {
+        $query = $this->db->query("SELECT COUNT(DISTINCT category) AS total FROM product");
+        return $query->row()->total ?? 0;
+    }
+
+    // ✅ Get total number of products
+    public function get_total_products() {
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM product");
+        if ($query->num_rows() > 0) {
+            return $query->row()->total;
+        } else {
+            return 0;
+        }
+    }
+
+    // ✅ Get top categories by quantity
+public function get_top_categories($limit = 5) {
+    $query = $this->db->query("
+        SELECT category, SUM(CAST(quantity AS UNSIGNED)) AS total_quantity
+        FROM product
+        WHERE category IS NOT NULL AND category != ''
+        GROUP BY category
+        ORDER BY total_quantity DESC
+        LIMIT {$limit}
+    ");
+    return $query->result_array();
+}
+
+    
+// DASHBOARD TOP CATOGRIES CHART END
     
  }
 ?>

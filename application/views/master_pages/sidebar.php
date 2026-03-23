@@ -78,59 +78,183 @@
 			<div class="sidebar-inner slimscroll">
 				<div id="sidebar-menu" class="sidebar-menu">
 					<ul>
-						<li class="submenu-open">
-							<h6 class="submenu-hdr">Main</h6>
-							<ul>
-								<li class="submenu">
-									<a href="javascript:void(0);" class="subdrop active"><i class="ti ti-layout-grid fs-16 me-2"></i><span>Dashboard</span><span class="menu-arrow"></span></a>
-									<ul>
-										<li><a href="<?php echo base_url('dashboard'); ?>">Admin Dashboard</a></li>
-										<li><a href="<?php echo base_url('sales_dashboard'); ?>">Sales Dashboard</a></li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-						<li class="submenu-open">
-							<h6 class="submenu-hdr">Inventory</h6>
-							<ul>
-								<li><a href="<?php echo base_url('product_list'); ?>" class="active"><i data-feather="box"></i><span>Products</span></a></li>
-								<li><a href="<?php echo base_url('add_product'); ?>"><i class="ti ti-table-plus fs-16 me-2"></i><span>Create Product</span></a></li>
-							</ul>
-						</li>
-						<li class="submenu-open">
-							<h6 class="submenu-hdr">Stock</h6>
-							<ul>
-								<li><a href="<?php echo base_url('manage-stock'); ?>"><i class="ti ti-stack-3 fs-16 me-2"></i><span>Manage Stock</span></a></li>
-							</ul>
-						</li>
-			
-						<li class="submenu-open">
-							<h6 class="submenu-hdr">Reports</h6>
-							<ul>
-								<li><a href="<?php echo base_url('sales-report') ?>"><i class="ti ti-chart-bar fs-16 me-2"></i><span>Sales Report</span></a></li>
-								<li><a href="<?php echo base_url('purchase-report') ?>"><i class="ti ti-chart-pie-2 fs-16 me-2"></i><span>Purchase report</span></a></li>
-								<li><a href="<?php echo base_url('inventory-report') ?>"><i class="ti ti-triangle-inverted fs-16 me-2"></i><span>Inventory Report</span></a>
-								</li>
-								<li><a href="<?php echo base_url('profit-loss') ?>"><i class="ti ti-chart-donut fs-16 me-2"></i><span>Profit & Loss</span></a></li>
-							</ul>
-						</li>
-						<li class="submenu-open">
-							<h6 class="submenu-hdr">Pages</h6>
-							<ul>
-								<li><a href="<?php echo base_url('profile') ?>"><i class="ti ti-user-circle fs-16 me-2"></i><span>Profile</span></a></li>
-							</ul>
-						</li>
-						<li class="submenu-open">
-							<h6 class="submenu-hdr">Settings</h6>
-							<ul>
-								<li>
-									<a href="<?php echo base_url('uppass') ?>"><i class="ti ti-settings fs-16 me-2"></i><span>General Settings</span></a>
-								</li>
-								<li>
-									<a href="<?php echo base_url('adminLogout') ?>"><i class="ti ti-logout fs-16 me-2"></i><span>Logout</span> </a>
-								</li>
-							</ul>
-						</li>
+						<!-- MAIN SECTION -->
+<li class="submenu-open">
+    <h6 class="submenu-hdr">Main</h6>
+    <?php
+    $current = $this->uri->segment(1);
+    $isDashboard = in_array($current, ['dashboard', 'sales_dashboard']);
+    ?>
+    <ul>
+        <li class="submenu">
+            <a href="javascript:void(0);" class="<?= $isDashboard ? 'subdrop active' : '' ?>">
+                <i class="ti ti-layout-grid fs-16 me-2"></i>
+                <span>Dashboard</span>
+                <span class="menu-arrow"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="<?= base_url('dashboard'); ?>" class="<?= $current === 'dashboard' ? 'active' : '' ?>">
+                        Admin Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('sales_dashboard'); ?>" class="<?= $current === 'sales_dashboard' ? 'active' : '' ?>">
+                        Sales Dashboard
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
+<!-- INVENTORY SECTION -->
+<li class="submenu-open">
+    <h6 class="submenu-hdr">Inventory</h6>
+    <?php
+    $current = $this->uri->segment(1);
+    $isProductSection = in_array($current, ['product_list', 'add_product']);
+    ?>
+    <ul>
+        <li class="submenu">
+            <a href="javascript:void(0);" class="<?= $isProductSection ? 'subdrop active' : '' ?>">
+                <i data-feather="box"></i>
+                <span>Products</span>
+                <span class="menu-arrow"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="<?= base_url('product_list'); ?>" class="<?= $current === 'product_list' ? 'active' : '' ?>">
+                        Product List
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('add_product'); ?>" class="<?= $current === 'add_product' ? 'active' : '' ?>">
+                        Create Product
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
+						<!-- STOCK SECTION -->
+<li class="submenu-open">
+    <h6 class="submenu-hdr">Stock</h6>
+    <?php
+    $current = $this->uri->segment(1);
+    $isStockSection = in_array($current, ['manage-stock']);
+    ?>
+    <ul>
+        <li class="submenu">
+            <a href="javascript:void(0);" class="<?= $isStockSection ? 'subdrop active' : '' ?>">
+                <i class="ti ti-stack-3 fs-16 me-2"></i>
+                <span>Stock</span>
+                <span class="menu-arrow"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="<?= base_url('manage-stock'); ?>" class="<?= $current === 'manage-stock' ? 'active' : '' ?>">
+                        Manage Stock
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
+<!-- REPORTS SECTION -->
+<li class="submenu-open">
+    <h6 class="submenu-hdr">Reports</h6>
+    <?php
+    $isReportSection = in_array($current, ['sales-report', 'purchase-report', 'inventory-report', 'profit-loss']);
+    ?>
+    <ul>
+        <li class="submenu">
+            <a href="javascript:void(0);" class="<?= $isReportSection ? 'subdrop active' : '' ?>">
+                <i class="ti ti-chart-bar fs-16 me-2"></i>
+                <span>Reports</span>
+                <span class="menu-arrow"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="<?= base_url('sales-report'); ?>" class="<?= $current === 'sales-report' ? 'active' : '' ?>">
+                        Sales Report
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('purchase-report'); ?>" class="<?= $current === 'purchase-report' ? 'active' : '' ?>">
+                        Purchase Report
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('inventory-report'); ?>" class="<?= $current === 'inventory-report' ? 'active' : '' ?>">
+                        Inventory Report
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('profit-loss'); ?>" class="<?= $current === 'profit-loss' ? 'active' : '' ?>">
+                        Profit & Loss
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
+<!-- PAGES SECTION -->
+<li class="submenu-open">
+    <h6 class="submenu-hdr">Pages</h6>
+    <?php
+    $isPagesSection = in_array($current, ['profile']);
+    ?>
+    <ul>
+        <li class="submenu">
+            <a href="javascript:void(0);" class="<?= $isPagesSection ? 'subdrop active' : '' ?>">
+                <i class="ti ti-user-circle fs-16 me-2"></i>
+                <span>Pages</span>
+                <span class="menu-arrow"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="<?= base_url('profile'); ?>" class="<?= $current === 'profile' ? 'active' : '' ?>">
+                        Profile
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
+<!-- SETTINGS SECTION -->
+<li class="submenu-open">
+    <h6 class="submenu-hdr">Settings</h6>
+    <?php
+    $isSettingsSection = in_array($current, ['uppass', 'adminLogout']);
+    ?>
+    <ul>
+        <li class="submenu">
+            <a href="javascript:void(0);" class="<?= $isSettingsSection ? 'subdrop active' : '' ?>">
+                <i class="ti ti-settings fs-16 me-2"></i>
+                <span>Settings</span>
+                <span class="menu-arrow"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="<?= base_url('uppass'); ?>" class="<?= $current === 'uppass' ? 'active' : '' ?>">
+                        General Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('adminLogout'); ?>" class="<?= $current === 'adminLogout' ? 'active' : '' ?>">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
 					</ul>
 				</div>
 			</div>

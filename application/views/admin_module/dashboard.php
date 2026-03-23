@@ -170,10 +170,10 @@ $this->load->view('master_pages/sidebar');
 
 				</div>
 
-				<div class="row">
+				<!-- <div class="row"> -->
 
 					<!-- Sales & Purchase -->
-					<div class="col-xxl-8 col-xl-7 col-sm-12 col-12 d-flex">
+					<!-- <div class="col-xxl-8 col-xl-7 col-sm-12 col-12 d-flex">
 						<div class="card flex-fill">
 							<div class="card-header d-flex justify-content-between align-items-center">
 								<div class="d-inline-flex align-items-center">
@@ -205,11 +205,11 @@ $this->load->view('master_pages/sidebar');
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 					<!-- /Sales & Purchase -->
 
 					<!-- Overall Information -->
-					<div class="col-xxl-4 col-xl-5 d-flex">
+					<!-- <div class="col-xxl-4 col-xl-5 d-flex">
 						<div class="card flex-fill">
 							<div class="card-header">
 								<div class="d-inline-flex align-items-center">
@@ -293,9 +293,9 @@ $this->load->view('master_pages/sidebar');
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 					<!--/ Overall Information -->
-				</div>
+				<!-- </div> -->
 
 				<div class="row">
 
@@ -325,81 +325,36 @@ $this->load->view('master_pages/sidebar');
 								</div>
 							</div>
 							<div class="card-body sell-product">
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="modules/assets/img/products/product-01.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Charger Cable - Lighting</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$187</p>
-												<p>247+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="modules/assets/img/products/product-16.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Yves Saint Eau De Parfum</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$145</p>
-												<p>289+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="modules/assets/img/products/product-03.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Apple Airpods 2</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$458</p>
-												<p>300+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="modules/assets/img/products/product-04.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Vacuum Cleaner</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$139</p>
-												<p>225+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-danger badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-down-left me-1"></i>21%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="modules/assets/img/products/product-05.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Samsung Galaxy S21 Fe 5g</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$898</p>
-												<p>365+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
+								<?php 
+					            $fetchOrderProducts = $this->db->query("SELECT oi.*
+FROM order_items oi
+JOIN (
+    SELECT product_name, MAX(quantity) AS max_qty
+    FROM order_items
+    WHERE quantity >= 5
+    GROUP BY product_name
+) AS filtered ON oi.product_name = filtered.product_name AND oi.quantity = filtered.max_qty
+ORDER BY oi.quantity ASC
+LIMIT 5;
+");
+					            foreach ($fetchOrderProducts->result() as $row) { ?>
+					                <div class="d-flex align-items-center justify-content-between mb-4">
+					                    <div class="d-flex align-items-center">
+					                        
+					                        <div class="ms-2">
+					                            <h6 class="fw-bold mb-1">
+					                                <a href="javascript:void(0);"><?php echo $row->product_name; ?></a>
+					                            </h6>
+					                            <p class="fs-13">PRICE : <?php echo $row->price; ?></p>
+					                        </div>
+					                    </div>
+					                    <div class="text-end">
+					                        <p class="fs-13 mb-1">Instock</p>
+					                        <h6 class="text-orange fw-medium"><?php echo $row->quantity; ?></h6>
+					                    </div>
+					                </div>
+					            <?php } ?>
+								
 							</div>
 						</div>
 					</div>
@@ -471,74 +426,7 @@ $this->load->view('master_pages/sidebar');
 										<h5>$8,9645</h5>
 									</div>									
 								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="modules/assets/img/customer/customer12.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Stan Gaunter</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>UAE</p>
-												<p>22 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$16,985</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="modules/assets/img/customer/customer13.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Richard Wilson</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>Germany</p>
-												<p>14 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$5,366</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="modules/assets/img/customer/customer14.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Mary Bronson</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>Belgium</p>
-												<p>08 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$4,569</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="modules/assets/img/customer/customer15.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Annie Tremblay</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>Greenland</p>
-												<p>14 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$3,5698</h5>
-									</div>									
-								</div>
+								
 							</div>
 						</div>
 					</div>	
@@ -614,38 +502,52 @@ $this->load->view('master_pages/sidebar');
 									</ul>
 								</div>
 							</div>
-							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between flex-wrap gap-4 mb-4">
-									<div>
-										<canvas id="top-category" height="230" width="200"></canvas>
-									</div>
-									<div>
-										<div class="category-item category-primary">
-											<p class="fs-13 mb-1">Electronics</p>
-											<h2 class="d-flex align-items-center">698<span class="fs-13 fw-normal text-default ms-1">Sales</span></h2>
-										</div>
-										<div class="category-item category-orange">
-											<p class="fs-13 mb-1">Sports</p>
-											<h2 class="d-flex align-items-center">545<span class="fs-13 fw-normal text-default ms-1">Sales</span></h2>
-										</div>
-										<div class="category-item category-secondary">
-											<p class="fs-13 mb-1">Lifestyles</p>
-											<h2 class="d-flex align-items-center">456<span class="fs-13 fw-normal text-default ms-1">Sales</span></h2>
-										</div>
-									</div>
-								</div>
-								<h6 class="mb-2">Category Statistics</h6>
-								<div class="border br-8">
-									<div class="d-flex align-items-center justify-content-between border-bottom p-2">
-										<p class="d-inline-flex align-items-center mb-0"><i class="ti ti-square-rounded-filled text-indigo fs-8 me-2"></i>Total Number Of Categories</p>
-										<h5>698</h5>
-									</div>
-									<div class="d-flex align-items-center justify-content-between p-2">
-										<p class="d-inline-flex align-items-center mb-0"><i class="ti ti-square-rounded-filled text-orange fs-8 me-2"></i>Total Number Of Products</p>
-										<h5>7899</h5>
-									</div>
-								</div>
-							</div>
+<div class="card-body">
+    <?php
+    $top_categories = $top_categories ?? [];
+    $total_categories = $total_categories ?? 0;
+    $total_products = $total_products ?? 0;
+    ?>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-4 mb-4">
+        <div>
+            <canvas id="top-category" height="230" width="200"></canvas>
+        </div>
+        <div>
+            <?php 
+            $colors = ['primary', 'orange', 'secondary', 'success', 'danger'];
+            $i = 0;
+            foreach ($top_categories as $cat): 
+                $color = $colors[$i % count($colors)];
+            ?>
+                <div class="category-item category-<?php echo $color; ?>">
+                    <p class="fs-13 mb-1"><?php echo $cat['category']; ?></p>
+                    <h2 class="d-flex align-items-center">
+                        <?php echo $cat['total_quantity']; ?>
+                        <span class="fs-13 fw-normal text-default ms-1">Units</span>
+                    </h2>
+                </div>
+            <?php $i++; endforeach; ?>
+        </div>
+    </div>
+
+    <h6 class="mb-2">Category Statistics</h6>
+    <div class="border br-8">
+        <div class="d-flex align-items-center justify-content-between border-bottom p-2">
+            <p class="d-inline-flex align-items-center mb-0">
+                <i class="ti ti-square-rounded-filled text-indigo fs-8 me-2"></i>Total Number Of Categories
+            </p>
+            <h5><?php echo $total_categories; ?></h5>
+        </div>
+        <div class="d-flex align-items-center justify-content-between p-2">
+            <p class="d-inline-flex align-items-center mb-0">
+                <i class="ti ti-square-rounded-filled text-orange fs-8 me-2"></i>
+                Total Number Of Products
+            </p>
+            <h5><?= $total_products; ?></h5>
+        </div>
+    </div>
+</div>
+
 						</div>
 					</div>
 					<!-- /Top Categories -->
@@ -657,6 +559,7 @@ $this->load->view('master_pages/sidebar');
 
 	</div>
 	<!-- /Main Wrapper -->
+
 
 <?php
 	$this->load->view('master_pages/footer');

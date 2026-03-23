@@ -1,4 +1,3 @@
-
 <?php
 	$this->load->view('master_pages/header');
 	$this->load->view('master_pages/sidebar');
@@ -21,7 +20,6 @@
 						<a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf" onclick="exportTableToPDF()">
 						  <img src="modules/assets/img/icons/pdf.svg" alt="img">
 						</a>
-
 					</li>
 					<li>
 						<a href="javascript:void(0);" onclick="exportAllPagesToExcel('product-table')" title="Export All to Excel">
@@ -37,7 +35,21 @@
 				</div>
 			</div>
 			
-			<table id="product-table" class="table datatable">
+			<div class="card">
+				<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+					<div class="search-set">
+						<div class="search-input">
+							<span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+						</div>
+					</div>
+					<div class="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+						
+					</div>
+				</div>
+				<div class="card-body p-0">
+							<div class="table-responsive">
+
+								<table id="product-table" class="table datatable">
 		        <thead>
 		            <tr>
 						<th>Id </th>
@@ -106,6 +118,10 @@
 					</tr>
 		        </tfoot>
 		    </table>
+
+							</div>
+						</div>
+			</div>
 		</div>
 	</div>
 </div>

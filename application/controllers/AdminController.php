@@ -158,6 +158,18 @@ class AdminController extends CI_Controller
 		$this->load->view('admin_module/low-stocks');
 	}
 
+// // DASHBOARD TOP CATOGRIES CHART
+public function CatogriesChart() {
+    $this->load->model('AdminModel');
+
+    $data['total_categories'] = $this->AdminModel->get_total_categories();
+    $data['total_products']   = $this->AdminModel->get_total_products();
+    $data['top_categories']   = $this->AdminModel->get_top_categories();
+
+    $this->load->view('admin_module/dashboard', $data);
+}
+
+// // DASHBOARD TOP CATOGRIES CHART END
 
 }
 

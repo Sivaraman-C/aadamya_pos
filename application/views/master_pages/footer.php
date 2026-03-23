@@ -55,12 +55,21 @@
 
 		<!-- Custom JS -->
 		<script src="<?php echo base_url(); ?>modules/assets/js/theme-colorpicker.js" type="e35dd6e4ff7c24ed2f48556e-text/javascript"></script>
-		<script src="<?php echo base_url(); ?>modules/assets/js/script.js" type="e35dd6e4ff7c24ed2f48556e-text/javascript"></script>
 		<script src="<?php echo base_url(); ?>modules/assets/js/calculator.js" type="208b7da090dbc15d7fe28213-text/javascript"></script>
+<!-- ✅ Load Chart.js first -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-		<!-- ApexChart JS -->
-	<script src="<?php echo base_url(); ?>modules/assets/plugins/apexchart/apexcharts.min.js" type="725c65875058b172a241ff4a-text/javascript"></script>
-	<script src="<?php echo base_url(); ?>modules/assets/plugins/apexchart/chart-data.js" type="725c65875058b172a241ff4a-text/javascript"></script>
+<!-- ✅ Pass PHP data to JS -->
+<script>
+window.categoryLabels = <?= json_encode(array_column($top_categories ?? [], 'category')); ?>;
+window.categoryQuantities = <?= json_encode(array_column($top_categories ?? [], 'total_quantity')); ?>;
+</script>
+
+<!-- ✅ Then load ApexCharts (optional) -->
+<script src="<?= base_url('modules/assets/plugins/apexchart/apexcharts.min.js'); ?>"></script>
+
+<!-- ✅ Then load your custom chart logic -->
+<script src="<?= base_url('modules/assets/plugins/apexchart/chart-data.js'); ?>"></script>
 
 	<!-- Chart JS -->
 	<script src="<?php echo base_url(); ?>modules/assets/plugins/chartjs/chart.min.js" type="725c65875058b172a241ff4a-text/javascript"></script>
@@ -69,5 +78,6 @@
 	<script src="<?php echo base_url(); ?>modules/assets/js/rocket-loader.min.js" data-cf-settings="e35dd6e4ff7c24ed2f48556e-|49" defer></script>
 	<script src="<?php echo base_url(); ?>modules/assets/js/rocket-loader.min.js" data-cf-settings="725c65875058b172a241ff4a-|49" defer></script>	
 	<script src="<?php echo base_url(); ?>modules/assets/js/rocket-loader.min.js" data-cf-settings="208b7da090dbc15d7fe28213-|49" defer></script>
+		<script src="<?php echo base_url(); ?>modules/assets/js/script.js" type="e35dd6e4ff7c24ed2f48556e-text/javascript"></script>
 </body>
 </html>

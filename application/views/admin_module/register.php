@@ -66,16 +66,26 @@
                                 <div class="mb-3">
                                     <label class="form-label">Contact <span class="text-danger"> *</span></label>
                                     <div class="input-group">
-                                        <input type="number" name="contact" id="contact" class="form-control border-end-0"  onkeypress="if(this.value.length === 10)return false;" >
+                                        <input type="number" name="contact" id="contact" class="form-control border-end-0" minlength="10"
+                                               maxlength="10"
+                                               required
+                                               oninput="ContactLength(this)">
                                         <span class="input-group-text border-start-0">
                                             <i class="ti ti-device-mobile"></i>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Password <span class="text-danger"> *</span></label>
+                                    <label class="form-label">Password <span class="text-danger">*</span></label>
                                     <div class="pass-group">
-                                        <input type="password" name="password" class="pass-input form-control">
+                                        <input type="password"
+                                               name="password"
+                                               class="pass-input form-control"
+                                               autocomplete="new-password"
+                                               minlength="6"
+                                               maxlength="6"
+                                               required
+                                               oninput="validatePasswordLength(this)">
                                         <span class="ti toggle-password ti-eye-off text-gray-9"></span>
                                     </div>
                                 </div>
@@ -124,6 +134,18 @@
 		
 		<!-- Custom JS -->
 <script src="<?php echo base_url(); ?>modules/assets/js/script.js" type="418a88810f22d4dbedb48155-text/javascript"></script>
+<script>
+function ContactLength(input) {
+    if (input.value.length > 10) {
+        input.value = input.value.slice(0, 10);
+    }
+}
+function validatePasswordLength(input) {
+    if (input.value.length > 6) {
+        input.value = input.value.slice(0, 6);
+    }
+}
+</script>
 
 	
     <script src="<?php echo base_url(); ?>modules/assets/js/rocket-loader.min.js" data-cf-settings="418a88810f22d4dbedb48155-|49" defer></script></body>

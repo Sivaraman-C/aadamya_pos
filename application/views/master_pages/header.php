@@ -1,9 +1,12 @@
 <?php 
-// if(!isset($_SESSION['activeAdmin']))
-// {
-// 	redirect(base_url());
-// }
+// // Make sure session library is loaded
+// $this->load->library('session');
 
+// // Check if admin is logged in
+// if (!$this->session->userdata('activeAdmin')) {
+//     redirect(base_url());
+//     exit;
+// }
 ?>
 
 <!DOCTYPE html>
@@ -119,28 +122,6 @@
 				<!-- Header Menu -->
 				<ul class="nav user-menu">
 
-					<!-- Search -->
-					<li class="nav-item nav-searchinputs">
-						<div class="top-nav-search">
-							<a href="javascript:void(0);" class="responsive-search">
-								<i class="fa fa-search"></i>
-							</a>
-							<form action="product-list.html#" class="dropdown">
-								<div class="searchinputs input-group dropdown-toggle" id="dropdownMenuClickable" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-									<input type="text" placeholder="Search">
-									<div class="search-addon">
-										<span><i class="ti ti-search"></i></span>
-									</div>
-								</div>
-								
-							</form>
-						</div>
-					</li>
-					<!-- /Search -->
-
-					
-
-					
 					
 					<li class="nav-item pos-nav">
 						<a href="<?php echo base_url('Pointofsales') ?>" class="btn btn-dark btn-md d-inline-flex align-items-center">
@@ -149,23 +130,20 @@
 					</li>
 
 					<!-- Flag -->
-					<li class="nav-item dropdown has-arrow flag-nav nav-item-box">
-						<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="javascript:void(0);"
-							role="button">
-							<img src="<?php echo base_url(); ?>modules/assets/img/flags/us-flag.svg" alt="Language" class="img-fluid">
-						</a>
-						<div class="dropdown-menu dropdown-menu-right">
-							<a href="javascript:void(0);" class="dropdown-item">
-								<img src="<?php echo base_url(); ?>modules/assets/img/flags/english.svg" alt="Img" height="16">English
-							</a>
-							<a href="javascript:void(0);" class="dropdown-item">
-								<img src="<?php echo base_url(); ?>modules/assets/img/flags/arabic.svg" alt="Img" height="16">Arabic
-							</a>
-							<a href="javascript:void(0);" class="dropdown-item">
-								<img src="<?php echo base_url(); ?>modules/assets/img/flags/arabic.svg" alt="Img" height="16">Tamil
-							</a>
-						</div>
-					</li>
+					<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        <img src="<?php echo base_url(); ?>modules/assets/img/flags/us-flag.svg" alt="Language">
+    </a>
+    <div class="dropdown-menu dropdown-menu-right">
+        <a href="?lang=english" class="dropdown-item">
+            <img src="<?php echo base_url(); ?>modules/assets/img/flags/english.svg" height="16"> English
+        </a>
+        <a href="?lang=arabic" class="dropdown-item">
+            <img src="<?php echo base_url(); ?>modules/assets/img/flags/arabic.svg" height="16"> Arabic
+        </a><!--  -->
+    </div>
+</li>
+
 					<!-- /Flag -->
 
 					<li class="nav-item nav-item-box">
@@ -224,3 +202,14 @@
         </div>
 		<!-- /Main Wrapper -->
 		
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'en,ar,ta',  // Add other language codes as needed
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+  }
+</script>
+
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

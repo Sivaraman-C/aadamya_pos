@@ -29,7 +29,7 @@ public function addData()
 
     // Configure image upload
     $config['upload_path'] = 'modules/gallery/';
-    $config['file_name'] = uniqid() . "_" . preg_replace('/\s+/', '_', $_FILES['productImage']['name']);
+    $config['file_name'] = preg_replace('/\s+/', '_', $_FILES['productImage']['name']);
     $config['allowed_types'] = 'jpg|jpeg|png';
     $config['overwrite'] = FALSE;
     $config['remove_spaces'] = TRUE;

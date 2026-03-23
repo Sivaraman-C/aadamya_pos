@@ -1827,19 +1827,18 @@ $(function () {
 // calc TotalUnitPice
 
 function calcuTotalUnitPrice() {
-            const productQty = parseFloat(document.getElementById('productQty').value);
-            const productPrice = parseFloat(document.getElementById('productPrice').value);
+    const productQty = parseFloat(document.getElementById('productQty').value);
+    const productPrice = parseFloat(document.getElementById('costPrice').value); // fixed this line
 
-                if (isNaN(productPrice) || productPrice <= 0 || isNaN(productQty) || productQty <= 0) {
-			        
-			        document.getElementById('totalunitPrice').value = '';
-			        return;
-			    }
+    if (isNaN(productPrice) || productPrice <= 0 || isNaN(productQty) || productQty <= 0) {
+        document.getElementById('totalunitPrice').value = '';
+        return;
+    }
 
-            const totalunitPrice = productPrice * productQty;
+    const totalunitPrice = productPrice * productQty;
 
-            document.getElementById('totalunitPrice').value = totalunitPrice.toFixed(2);
-        }
+    document.getElementById('totalunitPrice').value = totalunitPrice.toFixed(2);
+}
 
 // Calculate Discount
 
@@ -1874,112 +1873,126 @@ document.addEventListener('DOMContentLoaded', function () {
   const emptyCart = document.querySelector('.empty-cart');
   const addedIds = new Set();
 
-  // Handle product selection
-  document.querySelectorAll('.select-product').forEach(function (card) {
-    card.addEventListener('click', function () {
-      const id = this.dataset.id;
-      const name = this.dataset.name;
-      const image = this.dataset.image;
-      const price = parseFloat(this.dataset.price).toFixed(2);
+  // 🧩 Exit early if productWrap doesn't exist
+  if (!productWrap) return;
 
+  // 🛒 Handle product selection
+  document.querySelectorAll('.select-product').forEach((card) => {
+    card.addEventListener('click', function () {
+      const { id, name, image } = this.dataset;
+      const price = parseFloat(this.dataset.price || 0).toFixed(2);
+
+      // ✅ Toggle product in cart
       if (addedIds.has(id)) {
-        // Remove from cart
+        // Remove product from cart
         const productEl = productWrap.querySelector(`.product-list[data-id="${id}"]`);
         if (productEl) productEl.remove();
         addedIds.delete(id);
         this.classList.remove('selected');
       } else {
+        // Add product to cart
+        this.classList.add('selected');
+        if (emptyCart) emptyCart.style.display = 'none';
 
-      this.classList.add('selected');
-      if (emptyCart) emptyCart.style.display = 'none';
-
-      const productHTML = `
-        <div class="product-list align-items-center justify-content-between" data-id="${id}" data-price="${price}">
-          <div class="d-flex align-items-center product-info">
-            <a href="#" class="pro-img">
-              <img src="${image}" alt="${name}" width="50">
-            </a>
-            <div class="info">
-              <span>${id}</span>
-              <h6>${name}</h6>
-              <p class="fw-bold text-teal total-price"><i class="fa-solid fa-indian-rupee-sign"></i>${price}</p>
+        const productHTML = `
+          <div class="product-list align-items-center justify-content-between" 
+               data-id="${id}" data-price="${price}">
+            <div class="d-flex align-items-center product-info">
+              <a href="#" class="pro-img">
+                <img src="${image}" alt="${name}" width="50">
+              </a>
+              <div class="info">
+                <span>${id}</span>
+                <h6>${name}</h6>
+                <p class="fw-bold text-teal total-price">
+                  <i class="fa-solid fa-indian-rupee-sign"></i>${price}
+                </p>
+              </div>
+            </div>
+            <div class="qty-item text-center">
+              <a href="#" class="dec d-flex justify-content-center align-items-center">
+                <i data-feather="minus-circle" class="feather-14"></i>
+              </a>
+              <input type="text" class="form-control text-center" name="qty" value="1" readonly>
+              <a href="#" class="inc d-flex justify-content-center align-items-center">
+                <i data-feather="plus-circle" class="feather-14"></i>
+              </a>
+            </div>
+            <div class="d-flex align-items-center action">
+              <a class="btn-icon edit-icon me-1" href="#" data-bs-toggle="modal" data-bs-target="#edit-product">
+                <i data-feather="edit" class="feather-14"></i>
+              </a>
+              <a class="btn-icon delete-icon remove-product" href="javascript:void(0);">
+                <i data-feather="trash-2" class="feather-14 text-danger"></i>
+              </a>
             </div>
           </div>
-          <div class="qty-item text-center">
-            <a href="#" class="dec d-flex justify-content-center align-items-center">
-              <i data-feather="minus-circle" class="feather-14"></i>
-            </a>
-            <input type="text" class="form-control text-center" name="qty" value="1" readonly>
-            <a href="#" class="inc d-flex justify-content-center align-items-center">
-              <i data-feather="plus-circle" class="feather-14"></i>
-            </a>
-          </div>
-          <div class="d-flex align-items-center action">
-            <a class="btn-icon edit-icon me-1" href="#" data-bs-toggle="modal" data-bs-target="#edit-product">
-              <i data-feather="edit" class="feather-14"></i>
-            </a>
-            <a class="btn-icon delete-icon remove-product" href="javascript:void(0);">
-              <i data-feather="trash-2" class="feather-14 text-danger"></i>
-            </a>
-          </div>
-        </div>
-      `;
+        `;
 
-      productWrap.insertAdjacentHTML('beforeend', productHTML);
-      addedIds.add(id);
+        productWrap.insertAdjacentHTML('beforeend', productHTML);
+        addedIds.add(id);
       }
 
-      // Update cart count
-      productCount.textContent = addedIds.size;
-      feather.replace();
+      // 🧮 Update cart count
+      if (productCount) productCount.textContent = addedIds.size;
 
-      // Show empty cart if no items
+      feather.replace();
       if (addedIds.size === 0 && emptyCart) emptyCart.style.display = 'block';
-      updateSubTotal();
+      updateSubTotal?.();
     });
   });
 
-  // Quantity +/- and remove handlers
-  productWrap.addEventListener('click', function (e) {
+  // ➕➖ Remove / Quantity change
+  productWrap.addEventListener('click', (e) => {
     const incBtn = e.target.closest('.inc');
     const decBtn = e.target.closest('.dec');
     const removeBtn = e.target.closest('.remove-product');
 
+    // Quantity update
     if (incBtn || decBtn) {
       e.preventDefault();
+
       const qtyItem = e.target.closest('.qty-item');
-      const input = qtyItem.querySelector('input[name="qty"]');
+      const input = qtyItem?.querySelector('input[name="qty"]');
       const productEl = e.target.closest('.product-list');
-      const price = parseFloat(productEl.dataset.price);
-      let qty = parseInt(input.value) || 1;
+      const price = parseFloat(productEl?.dataset.price) || 0;
+      let qty = parseInt(input?.value) || 1;
 
       if (incBtn) qty++;
       else if (decBtn && qty > 1) qty--;
 
-      input.value = qty;
-      productEl.querySelector('.total-price').innerHTML = 
-  `<i class="fa-solid fa-indian-rupee-sign"></i>${(price * qty).toFixed(2)}`;
+      if (input) input.value = qty;
 
-      updateSubTotal();
+      const totalPriceEl = productEl?.querySelector('.total-price');
+      if (totalPriceEl) {
+        totalPriceEl.innerHTML = `
+          <i class="fa-solid fa-indian-rupee-sign"></i>${(price * qty).toFixed(2)}
+        `;
+      }
+
+      updateSubTotal?.();
     }
 
+    // Product removal
     if (removeBtn) {
       const productEl = e.target.closest('.product-list');
-      const id = productEl.dataset.id;
-      productEl.remove();
+      const id = productEl?.dataset.id;
+      productEl?.remove();
       addedIds.delete(id);
-      productCount.textContent = addedIds.size;
 
-      document.querySelectorAll('.select-product').forEach(card => {
+      if (productCount) productCount.textContent = addedIds.size;
+
+      document.querySelectorAll('.select-product').forEach((card) => {
         if (card.dataset.id === id) {
           card.classList.remove('selected');
         }
       });
 
       if (addedIds.size === 0 && emptyCart) emptyCart.style.display = 'block';
-      updateSubTotal();
+      updateSubTotal?.();
     }
   });
+
 
  // Clear Cart
 document.getElementById('clear-cart').addEventListener('click', function () {
@@ -2091,7 +2104,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (productEls.length === 0) {
         e.preventDefault();
         alert("No products added to the order.");
-        window.location.href = "<?php echo base_url('Pointofsales'); ?>"; // Adjust if needed
+        window.location.href = BASE_URL + "Pointofsales";
         return;
       }
 
@@ -2200,22 +2213,25 @@ fetch("<?php echo base_url('Pointofsales/save_invoice'); ?>", {
 
 //
 
-
-document.addEventListener("DOMContentLoaded", function () {
+// If inside a modal
+document.addEventListener("shown.bs.modal", function (event) {
   const receivedInput = document.getElementById("received-amount");
   const cashPayInput = document.getElementById("cashpay-total");
   const balanceOutput = document.getElementById("balance-amount");
+
+  if (!receivedInput || !cashPayInput || !balanceOutput) return;
 
   function updateBalance() {
     const received = parseFloat(receivedInput.value) || 0;
     const paying = parseFloat(cashPayInput.value) || 0;
     const balance = received - paying;
-
     balanceOutput.value = balance.toFixed(2);
   }
 
   receivedInput.addEventListener("input", updateBalance);
+  cashPayInput.addEventListener("input", updateBalance);
 });
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const hash = window.location.hash;
@@ -2233,11 +2249,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const orderData = {
   customer_id: document.getElementById('customer-select')?.value || 0,
-  subtotal: parseFloat(document.getElementById('receipt-subtotal').textContent) || 0,
-  gst: parseFloat(document.getElementById('receipt-tax').textContent) || 0,
-  shipping: parseFloat(document.getElementById('receipt-shipping').textContent) || 0,
-  discount: parseFloat(document.getElementById('receipt-discount').textContent) || 0,
-  grand_total: parseFloat(document.getElementById('receipt-grandtotal').textContent) || 0,
+  subtotal: parseFloat(document.getElementById('receipt-subtotal')?.textContent) || 0,
+  gst: parseFloat(document.getElementById('receipt-tax')?.textContent) || 0,
+  shipping: parseFloat(document.getElementById('receipt-shipping')?.textContent) || 0,
+  discount: parseFloat(document.getElementById('receipt-discount')?.textContent) || 0,
+  grand_total: parseFloat(document.getElementById('receipt-grandtotal')?.textContent) || 0,
   products: []
 };
 

@@ -81,6 +81,7 @@ $route['adminLogout'] = 'AdminController/adminLogout';
 $route['dashboard'] = 'AdminController/adminDashboard';
 $route['sales_dashboard'] = 'AdminController/salesDashboard';
 $route['low-stock'] = 'AdminController/lowStocks';
+$route['CatogriesChart'] = 'AdminController/CatogriesChart';
 
 $route['Pointofsales'] = 'PosController/Pointofsales';
 $route['createCustomer'] = 'PosController/createCustomer';
@@ -130,3 +131,4 @@ $route['sales-report'] = 'ReportController/salesReport';
 $route['purchase-report'] = 'ReportController/purchaseReport';
 $route['inventory-report'] = 'ReportController/inventoryReport';
 $route['profit-loss'] = 'ReportController/profitlossReport';
+

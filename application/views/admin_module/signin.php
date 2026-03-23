@@ -79,7 +79,7 @@ use Twilio\Rest\Client;
                                 <div class="mb-3">
                                     <label class="form-label">Password <span class="text-danger"> *</span></label>
                                     <div class="pass-group">
-                                        <input type="password" name="admin_password" class="pass-input form-control" onkeypress="if(this.value.length === 6)return false;">
+                                        <input type="password" name="admin_password" class="pass-input form-control" autocomplete="new-password" onkeypress="if(this.value.length === 6)return false;">
                                         <span class="ti toggle-password ti-eye-off text-gray-9"></span>
                                     </div>
                                 </div>

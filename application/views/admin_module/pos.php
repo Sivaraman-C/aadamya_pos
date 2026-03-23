@@ -1248,6 +1248,10 @@ $this->load->view('master_pages/pos_header'); ?>
 		<script src="<?php echo base_url(); ?>modules/assets/js/theme-colorpicker.js" type="f19eba6cac2c5bdf6aa2d583-text/javascript"></script>
 		<script src="<?php echo base_url(); ?>modules/assets/js/calculator.js" type="f19eba6cac2c5bdf6aa2d583-text/javascript"></script>
 		<script>const saveOrderUrl = "<?= base_url('save_order_with_items') ?>";</script>
+		<script>
+    const BASE_URL = "<?php echo base_url(); ?>";
+</script>
+		<script src="<?php echo base_url(); ?>modules/assets/js/theme-script.js"></script>
 		<script src="<?php echo base_url(); ?>modules/assets/js/script.js" type="f19eba6cac2c5bdf6aa2d583-text/javascript"></script>
 	
 	<script src="<?php echo base_url(); ?>modules/assets/js/rocket-loader.min.js" data-cf-settings="f19eba6cac2c5bdf6aa2d583-|49" defer></script>

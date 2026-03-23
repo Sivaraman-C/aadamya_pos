@@ -656,39 +656,48 @@ var myRadarChart = new Chart(ctx, {
 		
 	}
 
-	if($('#top-category').length > 0) {
-		var ctx = document.getElementById('top-category').getContext('2d');
-    var mySemiDonutChart = new Chart(ctx, {
-        type: 'doughnut', // Chart type
+$(function() {
+    const canvas = document.getElementById('top-category');
+    if (!canvas) {
+        console.warn("⚠️ Canvas not found");
+        return;
+    }
+
+    if (typeof Chart === 'undefined') {
+        console.error("❌ Chart.js not loaded yet!");
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const labels = window.categoryLabels || [];
+    const quantities = window.categoryQuantities || [];
+
+    console.log("Labels:", labels);
+    console.log("Quantities:", quantities);
+
+    if (labels.length === 0 || quantities.length === 0) {
+        console.warn("⚠️ No data for chart");
+        return;
+    }
+
+    new Chart(ctx, {
+        type: 'doughnut',
         data: {
-            labels: ['Lifestyles','Sports', 'Electronics'],
+            labels: labels,
             datasets: [{
-                label: 'Semi Donut',
-                data: [16, 24, 50],
-                backgroundColor: ['#092C4C', '#E04F16', '#FE9F43'],
+                data: quantities,
+                backgroundColor: ['#092C4C', '#E04F16', '#FE9F43', '#28A745', '#6C757D'],
                 borderWidth: 5,
-				borderRadius: 10,
-                borderColor: '#fff', // Border between segments
-                hoverBorderWidth: 0,   // Border radius for curved edges
-                cutout: '50%',   
+                borderColor: '#fff',
+                cutout: '50%'
             }]
         },
-		options: {
-			layout: {
-				padding: {
-					top: -20,    // Set to 0 to remove top padding
-					bottom: -20, // Set to 0 to remove bottom padding
-				}
-			},
-			responsive: true,
-			maintainAspectRatio: false,
-			plugins: {
-				legend: {
-					display: false // Hide the legend
-				}
-			},
-		  }
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
     });
-	}
+});
+
 
 });
