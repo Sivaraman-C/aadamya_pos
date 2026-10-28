@@ -53,7 +53,7 @@
                         <form action="<?php echo base_url('registerAdmin') ?>" method="POST">
                             <div class="login-userset">
                                 <div class="login-logo logo-normal">
-                                   <img src="<?php echo base_url(); ?>modules/assets/img/logo.svg" alt="img">
+                                   <img src="<?php echo base_url(); ?>modules/assets/img/pos_logo.png" alt="img">
                                </div>
                                <a href="index.html" class="login-logo logo-white">
                                    <img src="<?php echo base_url(); ?>modules/assets/img/logo-white.svg"  alt="Img">

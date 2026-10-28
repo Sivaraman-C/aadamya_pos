@@ -87,18 +87,29 @@ public function adminLogin()
                 $presentTimeZone = new DateTimeZone('Asia/Kolkata');
 
                 $defaultTime = new DateTime('now', $presentTimeZone);
+                $expiryTime = clone $defaultTime;
+                $expiryTime->modify('+1 minute');
 
-                $zoneTime = $defaultTime->format('d-m-Y H:i:s');
+                $zoneTime = $defaultTime->format('Y-m-d H:i:s');
+                $otpExpiry = $expiryTime->format('Y-m-d H:i:s');
 
                 $this->db->where('contact_no', $loginContact);
                 $this->db->update('register_seller', array(
                     'mobile_otp' => $mobile_otp,
                     'otp_generation_time' => $zoneTime,
-                    'otp_expiration_time' => date('Y-m-d H:i:s',strtotime($zoneTime.'+1 minutes'))
+                    'otp_expiration_time' => $otpExpiry
                 ));
 
-                $sid = "ACf6ad999ecf6afb07fe22ac15cf5222be";
-                $token = "fa352058a89af30d85edaf8b371ff842";
+                $sid = getenv('TWILIO_ACCOUNT_SID') ?: '';
+                $token = getenv('TWILIO_AUTH_TOKEN') ?: '';
+                $fromNumber = getenv('TWILIO_PHONE_NUMBER') ?: '';
+
+                if (empty($sid) || empty($token) || empty($fromNumber))
+                {
+                    echo "<script>alert('OTP service is not configured. Please contact the administrator.');window.location.href='" . base_url('signin') . "'</script>";
+                    return;
+                }
+
                 $twilio = new Client($sid, $token);
 
                 $customMessage = "Your OTP is " . $mobile_otp;
@@ -109,7 +120,7 @@ public function adminLogin()
                     $message = $twilio->messages->create(
                         $toPhone,
                         array(
-                            "from" => "+12393504152",
+                            "from" => $fromNumber,
                             "body" => $customMessage
                         )
                     );
@@ -117,7 +128,19 @@ public function adminLogin()
                     echo "<script>alert('OTP sent to your Mobile Number.');window.location.href='" . base_url('otp_verification') . "'</script>";
                 } catch (Exception $e)
                 {
-                    echo "<script>alert('Failed to send OTP: " . $e->getMessage() . "');window.location.href='" . base_url('signin') . "'</script>";
+                    $errorMessage = $e->getMessage();
+                    $isTrialOrTemplateIssue = (strpos($errorMessage, 'Invalid template name') !== false)
+                        || (strpos($errorMessage, 'Trial accounts') !== false)
+                        || (strpos($errorMessage, 'Authenticate') !== false)
+                        || (strpos($errorMessage, 'not a valid') !== false);
+
+                    if ($isTrialOrTemplateIssue) {
+                        $_SESSION['demo_otp'] = $mobile_otp;
+                        echo "<script>alert('Twilio trial mode is active. Demo OTP: " . $mobile_otp . "\nUse this code to continue login testing.');window.location.href='" . base_url('otp_verification') . "'</script>";
+                        return;
+                    }
+
+                    echo "<script>alert('Failed to send OTP: " . $errorMessage . "');window.location.href='" . base_url('signin') . "'</script>";
                 }
 
             } else
@@ -164,51 +187,53 @@ public function UpdatePassword()
         echo "<script>alert('User not found'); window.location.href='" . base_url('updatePassword') . "';</script>";
     }
 }
-
+ 
 
 public function OTPVerification()
 {
-    $enteredOTP = $_POST['recived_mobile_otp'];
+    $enteredOTP = trim((string) $_POST['recived_mobile_otp']);
     $contactNo = $_SESSION['activeAdmin'];
 
-    // Fetch OTP and expiry time from database
     $fetchMyOTP = $this->db->query("SELECT * FROM register_seller WHERE contact_no = '$contactNo'");
-    foreach ($fetchMyOTP->result() as $row)
-    {
-        $otp = $row->mobile_otp;
-        $otpExpiryTime = $row->otp_expiration_time;
+    $otp = '';
+    $otpExpiryTime = null;
 
-        // Set timezone to Asia/Kolkata for comparison
-        $presentTimeZone = new DateTimeZone('Asia/Kolkata');
-        $currentTime = new DateTime('now', $presentTimeZone);
-
-        // Convert OTP expiry time to DateTime object
-        $otpExpiryDateTime = new DateTime($otpExpiryTime, $presentTimeZone);
+    if ($fetchMyOTP->num_rows() > 0) {
+        $row = $fetchMyOTP->row();
+        $otp = isset($row->mobile_otp) ? (string) $row->mobile_otp : '';
+        $otpExpiryTime = isset($row->otp_expiration_time) ? $row->otp_expiration_time : null;
     }
 
     if(isset($_POST['OTPVerify']))
     {
-        // Compare the current time with the OTP expiry time
+        if (empty($otpExpiryTime) || empty($otp)) {
+            echo "<script>alert('OTP expired or not generated. Please login again.');window.location.href='" . base_url('signin') . "'</script>";
+            return;
+        }
+
+        $presentTimeZone = new DateTimeZone('Asia/Kolkata');
+        $currentTime = new DateTime('now', $presentTimeZone);
+        $otpExpiryDateTime = new DateTime($otpExpiryTime, $presentTimeZone);
+
         if ($currentTime > $otpExpiryDateTime)
         {
             echo "<script>alert('OTP TimeOut. Please try again.');window.location.href='" . base_url('signin') . "'</script>";
+            return;
         }
-        else
-        {
-            if($enteredOTP === $otp)
-            {
-                    $this->db->where('contact_no', $contactNo);
-                    $this->db->update('register_seller', array(
-                        'mobile_otp' => $enteredOTP,
-                        'otp_expiration_time' => $otpExpiryDateTime->format('Y-m-d H:i:s'),
-                        'mobile_verified_status' => 'active'
-                    ));
 
-                    echo "<script>alert('OTP verified successfully');window.location.href='" . base_url('dashboard') . "'</script>";
-            } else
-            {
-                echo "<script>alert('Invalid OTP. Please try again.');window.location.href='" . base_url('otp_verification') . "'</script>";
-            }
+        if($enteredOTP === $otp)
+        {
+            $this->db->where('contact_no', $contactNo);
+            $this->db->update('register_seller', array(
+                'mobile_otp' => $enteredOTP,
+                'otp_expiration_time' => $currentTime->format('Y-m-d H:i:s'),
+                'mobile_verified_status' => 'active'
+            ));
+
+            echo "<script>alert('OTP verified successfully');window.location.href='" . base_url('dashboard') . "'</script>";
+        } else
+        {
+            echo "<script>alert('Invalid OTP. Please try again.');window.location.href='" . base_url('otp_verification') . "'</script>";
         }
     }
 }
@@ -282,18 +307,29 @@ public function userRegister()
                 $presentTimeZone = new DateTimeZone('Asia/Kolkata');
 
                 $defaultTime = new DateTime('now', $presentTimeZone);
+                $expiryTime = clone $defaultTime;
+                $expiryTime->modify('+1 minute');
 
-                $zoneTime = $defaultTime->format('d-m-Y H:i:s');
+                $zoneTime = $defaultTime->format('Y-m-d H:i:s');
+                $otpExpiry = $expiryTime->format('Y-m-d H:i:s');
 
                 $this->db->where('user_contact', $loginContact);
                 $this->db->update('register_seller', array(
                     'user_otp' => $user_top,
                     'otp_generation_time' => $zoneTime,
-                    'otp_expiration_time' => date('Y-m-d H:i:s',strtotime($zoneTime.'+1 minutes'))
+                    'otp_expiration_time' => $otpExpiry
                 ));
 
-                $sid = "ACf6ad999ecf6afb07fe22ac15cf5222be";
-                $token = "1725f4edeb6a28271687ce555f13040e";
+                $sid = getenv('TWILIO_ACCOUNT_SID') ?: '';
+                $token = getenv('TWILIO_AUTH_TOKEN') ?: '';
+                $fromNumber = getenv('TWILIO_PHONE_NUMBER') ?: '';
+
+                if (empty($sid) || empty($token) || empty($fromNumber))
+                {
+                    echo "<script>alert('OTP service is not configured. Please contact the administrator.');window.location.href='" . base_url('userSignin') . "'</script>";
+                    return;
+                }
+
                 $twilio = new Client($sid, $token);
 
                 $customMessage = "Your OTP is " . $user_top;
@@ -304,7 +340,7 @@ public function userRegister()
                     $message = $twilio->messages->create(
                         $toPhone,
                         array(
-                            "from" => "+12393504152",
+                            "from" => $fromNumber,
                             "body" => $customMessage
                         )
                     );
@@ -312,7 +348,19 @@ public function userRegister()
                     echo "<script>alert('OTP sent to your Mobile Number.');window.location.href='" . base_url('otp_verification') . "'</script>";
                 } catch (Exception $e)
                 {
-                    echo "<script>alert('Failed to send OTP: " . $e->getMessage() . "');window.location.href='" . base_url('userSignin') . "'</script>";
+                    $errorMessage = $e->getMessage();
+                    $isTrialOrTemplateIssue = (strpos($errorMessage, 'Invalid template name') !== false)
+                        || (strpos($errorMessage, 'Trial accounts') !== false)
+                        || (strpos($errorMessage, 'Authenticate') !== false)
+                        || (strpos($errorMessage, 'not a valid') !== false);
+
+                    if ($isTrialOrTemplateIssue) {
+                        $_SESSION['demo_otp'] = $user_top;
+                        echo "<script>alert('Twilio trial mode is active. Demo OTP: " . $user_top . "\nUse this code to continue login testing.');window.location.href='" . base_url('otp_verification') . "'</script>";
+                        return;
+                    }
+
+                    echo "<script>alert('Failed to send OTP: " . $errorMessage . "');window.location.href='" . base_url('userSignin') . "'</script>";
                 }
 
             } else

@@ -1,8 +1,3 @@
-<?php 
-require_once 'vendor/autoload.php';
-use Twilio\Rest\Client;
-?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>

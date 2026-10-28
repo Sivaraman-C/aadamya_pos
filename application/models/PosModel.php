@@ -157,6 +157,178 @@ public function save_order_and_update_stock($data) {
         return $order_id;
     }
 
+    public function saveCheckoutCustomer($data)
+    {
+        $name = trim((string) ($data['name'] ?? ''));
+        $contact = trim((string) ($data['contact'] ?? ''));
+
+        if ($name === '' || $contact === '') {
+            return ['status' => 'error', 'message' => 'Enter customer name and phone number.'];
+        }
+
+        $customerData = [
+            'name' => $name,
+            'contact' => $contact,
+            'address' => trim((string) ($data['address'] ?? '')),
+            'city' => trim((string) ($data['city'] ?? '')),
+            'country' => trim((string) ($data['country'] ?? ''))
+        ];
+
+        if (!$this->db->insert('customer', $customerData)) {
+            return ['status' => 'error', 'message' => 'Could not save customer information.'];
+        }
+
+        return ['status' => 'success', 'customer_id' => (int) $this->db->insert_id(), 'customer_name' => $name];
+    }
+
+    public function saveCheckout($data)
+    {
+        if (!is_array($data) || empty($data['order']) || empty($data['items']) || !is_array($data['items'])) {
+            return ['status' => 'error', 'message' => 'Order and at least one item are required.'];
+        }
+
+        $order = $data['order'];
+        $this->db->trans_begin();
+
+        $customerId = (int) ($order['customer_id'] ?? 0);
+        $customerName = 'Walk-in Customer';
+        $contact = '';
+
+        if (!empty($data['customer']) && is_array($data['customer'])) {
+            $newCustomer = $data['customer'];
+            $customerName = trim((string) ($newCustomer['name'] ?? ''));
+            $contact = trim((string) ($newCustomer['contact'] ?? ''));
+
+            if ($customerName === '' || $contact === '') {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'Enter the new customer name and phone number.'];
+            }
+
+            if ($customerId > 0) {
+                $savedCustomer = $this->db->get_where('customer', ['id' => $customerId])->row();
+                if (!$savedCustomer) {
+                    $this->db->trans_rollback();
+                    return ['status' => 'error', 'message' => 'The newly saved customer could not be found.'];
+                }
+                $customerName = $savedCustomer->name;
+                $contact = $savedCustomer->contact;
+            } else {
+                $customerData = [
+                    'name' => $customerName,
+                    'contact' => $contact,
+                    'address' => trim((string) ($newCustomer['address'] ?? '')),
+                    'city' => trim((string) ($newCustomer['city'] ?? '')),
+                    'country' => trim((string) ($newCustomer['country'] ?? ''))
+                ];
+
+                if (!$this->db->insert('customer', $customerData)) {
+                    $this->db->trans_rollback();
+                    return ['status' => 'error', 'message' => 'Could not save customer information.'];
+                }
+
+                $customerId = (int) $this->db->insert_id();
+            }
+        } elseif ($customerId > 0) {
+            $customer = $this->db->get_where('customer', ['id' => $customerId])->row();
+            if (!$customer) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'Selected customer was not found.'];
+            }
+            $customerName = $customer->name;
+            $contact = $customer->contact;
+        }
+
+        $orderData = [
+            'customer_id' => $customerId,
+            'customer_name' => $customerName,
+            'contact' => $contact,
+            'order_date' => date('Y-m-d H:i:s'),
+            'subtotal' => (string) (float) ($order['subtotal'] ?? 0),
+            'discount' => (string) (float) ($order['discount'] ?? 0),
+            'shipping' => (string) (float) ($order['shipping'] ?? 0),
+            'tax' => (string) (float) ($order['tax'] ?? 0),
+            'grand_total' => (string) (float) ($order['grand_total'] ?? 0),
+            'invoice_number' => trim((string) ($order['invoice_number'] ?? ''))
+        ];
+
+        if ($orderData['invoice_number'] === '' || !$this->db->insert('orders', $orderData)) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Could not save the order.'];
+        }
+
+        $orderId = (int) $this->db->insert_id();
+        $orderItems = [];
+
+        foreach ($data['items'] as $item) {
+            $productId = (int) ($item['product_id'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 0);
+            if ($productId <= 0 || $quantity <= 0) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'An order item has an invalid product or quantity.'];
+            }
+
+            $product = $this->db->get_where('product', ['id' => $productId])->row();
+            if (!$product) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'A selected product could not be found.'];
+            }
+
+            if ((int) $product->quantity < $quantity) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'Insufficient stock for ' . $product->product_name . '.'];
+            }
+
+            $price = (float) $product->unit_price;
+            $orderItems[] = [
+                'order_id' => $orderId,
+                'product_id' => $productId,
+                'product_name' => $product->product_name,
+                'price' => (string) $price,
+                'quantity' => $quantity,
+                'total' => round($price * $quantity, 2)
+            ];
+        }
+
+        if (!$this->db->insert_batch('order_items', $orderItems)) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Could not save the order items.'];
+        }
+
+        foreach ($orderItems as $item) {
+            $this->db->set('quantity', 'quantity - ' . (int) $item['quantity'], false);
+            $this->db->where('id', $item['product_id']);
+            $this->db->where('quantity >=', (int) $item['quantity']);
+            $this->db->update('product');
+
+            if ($this->db->affected_rows() !== 1) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'Stock changed during checkout. Please try again.'];
+            }
+        }
+
+        $paymentData = [
+            'customer_id' => $customerId,
+            'order_id' => (string) $orderId,
+            'payment_id' => 'POS-' . $orderData['invoice_number'],
+            'amount' => (float) $orderData['grand_total'],
+            'status' => 'completed',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        if (!$this->db->insert('payments', $paymentData)) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Could not save the payment record.'];
+        }
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Checkout failed; no order was saved.'];
+        }
+
+        $this->db->trans_commit();
+        return ['status' => 'success', 'order_id' => $orderId, 'customer_id' => $customerId];
+    }
+
     public function handleOrder($data)
     {
         if (empty($data['products']) || !is_array($data['products'])) {

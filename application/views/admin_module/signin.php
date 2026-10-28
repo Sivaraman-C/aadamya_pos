@@ -1,8 +1,3 @@
-<?php 
-require_once 'vendor/autoload.php';
-use Twilio\Rest\Client;
-?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -54,10 +49,10 @@ use Twilio\Rest\Client;
       <div class="account-content">
         <div class="login-wrapper bg-img">
                     <div class="login-content authent-content">
-                        <form method="POST" action="<?php echo base_url('signinAdmin'); ?>">
+                        <form method="POST" action="<?php echo base_url('otp_verification'); ?>">
                             <div class="login-userset">
                                 <div class="login-logo logo-normal">
-                                   <img src="modules/assets/img/logo.svg" alt="img">
+                                   <img src="modules/assets/img/pos_logo.png" alt="img">
                                </div>
                                <a href="index.html" class="login-logo logo-white">
                                    <img src="modules/assets/img/logo-white.svg"  alt="Img">
@@ -118,7 +113,7 @@ use Twilio\Rest\Client;
                                    </div>
                                </div>
                                <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
-                                <p>Copyright &copy; 2025 DreamsPOS</p>
+                                <p>Copyright &copy; 2026 AadamyaPOS</p>
                             </div>
                            </div>
                         </form>

@@ -36,6 +36,37 @@
  * @filesource
  */
 
+if (file_exists(__DIR__ . '/.env')) {
+    $envFile = __DIR__ . '/.env';
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    if ($lines !== false) {
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || strpos($trimmed, '#') === 0) {
+                continue;
+            }
+
+            if (strpos($trimmed, '=') === false) {
+                continue;
+            }
+
+            list($key, $value) = explode('=', $trimmed, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            if ($value !== '') {
+                $value = trim($value, "\"'");
+            }
+
+            if ($key !== '') {
+                $_ENV[$key] = $value;
+                putenv($key . '=' . $value);
+            }
+        }
+    }
+}
+
 /*
  *---------------------------------------------------------------
  * APPLICATION ENVIRONMENT

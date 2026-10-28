@@ -17049,6 +17049,7 @@ body.mini-sidebar.expand-menu .sidebar .sidebar-menu > ul > li.submenu-open ul l
 }
 .sidebar .sidebar-logo .logo img {
   width: 130px;
+  margin-top: 20px;
 }
 .sidebar .sidebar-logo .logo-small {
   display: none;

@@ -85,6 +85,7 @@ $route['CatogriesChart'] = 'AdminController/CatogriesChart';
 
 $route['Pointofsales'] = 'PosController/Pointofsales';
 $route['createCustomer'] = 'PosController/createCustomer';
+$route['saveCheckoutCustomer'] = 'PosController/saveCheckoutCustomer';
 $route['paymentComplete'] = 'PosController/paymentComplete';
 $route['save_order_with_items'] = 'PosController/save_order_with_items';
 

@@ -1898,9 +1898,9 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="product-list align-items-center justify-content-between" 
                data-id="${id}" data-price="${price}">
             <div class="d-flex align-items-center product-info">
-              <a href="#" class="pro-img">
+              <!-- <a href="#" class="pro-img">
                 <img src="${image}" alt="${name}" width="50">
-              </a>
+              </a> -->
               <div class="info">
                 <span>${id}</span>
                 <h6>${name}</h6>
@@ -2095,120 +2095,83 @@ function updateGSTandGrandTotal() {
 //
 
 document.addEventListener('DOMContentLoaded', () => {
-  const paymentBtn = document.querySelector('[data-bs-target="#payment-completed"]');
+	document.addEventListener('click', (event) => {
+		const paymentTrigger = event.target.closest('.payment-item, [data-bs-target="#payment-completed"]');
+		if (!paymentTrigger) return;
 
-  if (paymentBtn) {
-    paymentBtn.addEventListener('click', function (e) {
-      const productEls = document.querySelectorAll('.product-list');
+		if (document.querySelectorAll('.product-wrap .product-list').length === 0) {
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
+			alert('Please select at least one product before choosing a payment option.');
+		}
+	}, true);
 
-      if (productEls.length === 0) {
-        e.preventDefault();
-        alert("No products added to the order.");
-        window.location.href = BASE_URL + "Pointofsales";
-        return;
-      }
+	document.querySelectorAll('.payment-item').forEach((paymentItem) => {
+		paymentItem.addEventListener('click', (event) => {
+			window.currentPosPaymentMethod = paymentItem.textContent.trim().toLowerCase();
+			const name = document.getElementById('customer-name').value.trim();
+			const contact = document.getElementById('customer-phone').value.trim();
+			const city = document.getElementById('customer-city').value.trim();
+			const customerKey = JSON.stringify({ name, contact, city });
 
-      // Generate Invoice Number
-      const invoiceNumber = generateInvoiceNumber();
+			if (!name && !contact && !city) {
+				window.currentPosCustomerId = 0;
+				return;
+			}
 
-      // Get customer and totals
-      const customerSelect = document.getElementById('customer-select');
-      const selectedOption = customerSelect.options[customerSelect.selectedIndex];
-      const customerName = selectedOption.text;
-      const customerPhone = document.getElementById('customer-phone').value;
-      const customerCity = document.getElementById('customer-city').value;
+			if (!name || !contact) {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				alert('Enter both customer name and phone number, or leave customer information empty for a walk-in sale.');
+				return;
+			}
 
-      // Fetch from data attributes
-      const customerId = selectedOption.getAttribute('data-id');
-      const customerCreated = selectedOption.getAttribute('data-created') || new Date().toLocaleDateString();
+			const modalTarget = paymentItem.getAttribute('data-bs-target');
+			if (modalTarget) {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
 
-      const subTotal = parseFloat(document.getElementById('sub-total').innerText) || 0;
-      const tax = parseFloat(document.getElementById('gst-amount').innerText) || 0;
-      const shipping = parseFloat(document.getElementById('shipping-amount').innerText) || 0;
-      const discount = parseFloat(document.getElementById('discount-amount').innerText) || 0;
-      const grandTotal = parseFloat(document.getElementById('grand-total').innerText) || 0;
+			if (window.savedPosCustomerKey === customerKey && window.currentPosCustomerId) {
+				if (modalTarget) {
+					bootstrap.Modal.getOrCreateInstance(document.querySelector(modalTarget)).show();
+				}
+				return;
+			}
 
-
-      document.getElementById('receipt-customer').innerText = customerName;
-      document.getElementById('receipt-phone').innerText = customerPhone;
-      document.getElementById('receipt-id').innerText = customerId;
-      document.getElementById('receipt-contact').innerText = customerPhone;
-      document.getElementById('receipt-date').innerText = new Date(customerCreated).toLocaleDateString();
-      document.getElementById('receipt-subtotal').innerText = subTotal.toFixed(2);
-      document.getElementById('receipt-discount').innerText = discount.toFixed(2);
-      document.getElementById('receipt-shipping').innerText = shipping.toFixed(2);
-      document.getElementById('receipt-tax').innerText = tax.toFixed(2);
-      document.getElementById('receipt-grandtotal').innerText = grandTotal.toFixed(2);
-      document.getElementById('receipt-due').innerText = '0.00';
-      document.getElementById('receipt-transaction').innerText = data.invoice_number;
-
-      // Show receipt modal
-      const receiptModal = new bootstrap.Modal(document.getElementById('print-receipt'));
-      receiptModal.show();
-
-      // Prepare order data
-const orderData = {
-  invoice_number: invoiceNumber,  // This should be passed correctly
-  customer_id: customerId,
-  customer_name: customerName,
-  customer_phone: customerPhone,
-  customer_city: customerCity,
-  products: products,
-  subtotal: subTotal,
-  discount: discount,
-  shipping: shipping,
-  tax: tax,
-  grand_total: grandTotal
-};
-
-console.log('Order Data:', orderData);  // Log the data before sending
-
-// Send the data to the backend (AJAX request)
-fetch("<?php echo base_url('Pointofsales/save_invoice'); ?>", {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(orderData)
-})
-.then(response => response.json())
-.then(data => {
-  if (data.success) {
-    console.log('Invoice saved successfully');
-    document.getElementById('receipt-transaction').innerText = data.invoice_number; // Display invoice number in modal
-  } else {
-    console.error('Error saving invoice:', data.message);
-  }
-})
-.catch(error => console.error('Error:', error));
-    });
-  }
-
-
-
-  // Populate phone and city when customer is selected
-  const customerSelect = document.getElementById('customer-select');
-  const phoneInput = document.getElementById('customer-phone');
-  const cityInput = document.getElementById('customer-city');
-
-  if (customerSelect) {
-    customerSelect.addEventListener('change', function () {
-      const selectedOption = customerSelect.options[customerSelect.selectedIndex];
-      const phone = selectedOption.getAttribute('data-phone');
-      const city = selectedOption.getAttribute('data-city');
-      const customerId = selectedOption.getAttribute('data-id');
-      const customerCreated = selectedOption.getAttribute('data-created');
-
-      phoneInput.value = phone || '';
-      cityInput.value = city || '';
-
-      // Optional: Update customer information on selection (for display in receipt or other parts)
-      document.getElementById('receipt-id').innerText = customerId || "N/A";
-      document.getElementById('receipt-contact').innerText = phone || "N/A";
-      document.getElementById('receipt-date').innerText = customerCreated ? new Date(customerCreated).toLocaleDateString() : new Date().toLocaleDateString();
-    });
-  }
+			persistPosCustomer({ name, contact, city }).then((saved) => {
+				if (saved && modalTarget) {
+					window.savedPosCustomerKey = customerKey;
+					bootstrap.Modal.getOrCreateInstance(document.querySelector(modalTarget)).show();
+				}
+			});
+		});
+	});
 });
+
+function persistPosCustomer(customer) {
+	return fetch(saveCheckoutCustomerUrl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(customer)
+	})
+		.then(async (response) => {
+			const result = await response.json();
+			if (!response.ok || result.status !== 'success') {
+				throw new Error(result.message || 'Could not save customer.');
+			}
+			window.currentPosCustomerId = result.customer_id;
+			window.savedPosCustomerName = result.customer_name;
+			window.savedPosCustomerKey = JSON.stringify(customer);
+			document.getElementById('customer-name').value = result.customer_name;
+			return true;
+		})
+		.catch((error) => {
+			alert(error.message);
+			return false;
+		});
+}
 
 
 //
@@ -2247,40 +2210,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-const orderData = {
-  customer_id: document.getElementById('customer-select')?.value || 0,
-  subtotal: parseFloat(document.getElementById('receipt-subtotal')?.textContent) || 0,
-  gst: parseFloat(document.getElementById('receipt-tax')?.textContent) || 0,
-  shipping: parseFloat(document.getElementById('receipt-shipping')?.textContent) || 0,
-  discount: parseFloat(document.getElementById('receipt-discount')?.textContent) || 0,
-  grand_total: parseFloat(document.getElementById('receipt-grandtotal')?.textContent) || 0,
-  products: []
-};
-
-document.querySelectorAll('.product-list').forEach(productEl => {
-  orderData.products.push({
-    id: productEl.dataset.id,
-    qty: productEl.querySelector('input[name="qty"]').value
-  });
-});
-
-fetch('<?= base_url("Pointofsales/paymentComplete") ?>', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(orderData)
-})
-.then(res => res.json())
-.then(data => {
-  if (data.success) {
-    document.getElementById('receipt-transaction').textContent = data.invoice_no;
-    document.getElementById('receipt-date').textContent = data.date;
-    new bootstrap.Modal(document.getElementById('print-receipt')).show();
-    document.getElementById('clear-cart').click();
-  } else {
-    alert('Payment failed: ' + data.message);
-  }
-});
-
 //Generate invoice number
 
 function generateInvoiceNumber() {
@@ -2304,9 +2233,14 @@ function generateInvoiceNumber() {
 
 
 function handleSubmit() {
-  // Close the current modal (cash payment)
-  const cashModal = bootstrap.Modal.getInstance(document.getElementById('payment-cash'));
-  cashModal.hide();
+	if (document.querySelectorAll('.product-wrap .product-list').length === 0) {
+		alert('Please select at least one product before continuing to payment.');
+		return;
+	}
+
+	const cashModal = bootstrap.Modal.getInstance(document.getElementById('payment-cash'));
+	if (cashModal) cashModal.hide();
+	window.currentPosPaymentMethod = 'cash';
 
   // Wait for the animation to finish, then show payment completed
   setTimeout(() => {
@@ -2355,10 +2289,9 @@ function showReceipt() {
   document.getElementById('receipt-grandtotal').innerText = document.getElementById('grand-total').innerText;
 
   // Fill customer info
-  const customerSelect = document.getElementById('customer-select');
-  document.getElementById('receipt-customer').innerText = customerSelect.selectedOptions[0]?.text || '';
-  document.getElementById('receipt-id').innerText = customerSelect.value || '';
-  document.getElementById('receipt-contact').innerText = document.getElementById('customer-phone').value || '';
+	document.getElementById('receipt-customer').innerText = document.getElementById('customer-name').value.trim() || 'Walk-in Customer';
+	document.getElementById('receipt-id').innerText = String(window.currentPosCustomerId || '');
+	document.getElementById('receipt-contact').innerText = document.getElementById('customer-phone').value.trim();
   document.getElementById('receipt-date').innerText = new Date().toLocaleString();
 
   // Show modal
@@ -2368,62 +2301,62 @@ function showReceipt() {
 
 // payment and save db
 function saveOrderFromReceipt() {
-    const order = {
-        customer_id: document.getElementById('receipt-id').innerText.trim() || 0,
-        customer_name: document.getElementById('receipt-customer').innerText.trim() || 'Walk-in',
-        phone: document.getElementById('receipt-phone').innerText.trim(),
-        contact: document.getElementById('receipt-contact').innerText.trim(),
-        date: document.getElementById('receipt-date').innerText.trim(),
-        subtotal: parseFloat(document.getElementById('receipt-subtotal').innerText) || 0,
-        discount: parseFloat(document.getElementById('receipt-discount').innerText) || 0,
-        shipping: parseFloat(document.getElementById('receipt-shipping').innerText) || 0,
-        tax: parseFloat(document.getElementById('receipt-tax').innerText) || 0,
-        grand_total: parseFloat(document.getElementById('receipt-grandtotal').innerText) || 0,
-        invoice_number: document.getElementById('receipt-transaction').innerText.replace('#', '').trim()
-    };
+	if (window.posOrderSaving) return;
 
-    const rows = document.querySelectorAll('#receipt-products tr');
-    const items = [];
+	const customerName = document.getElementById('customer-name').value.trim();
+	const customerContact = document.getElementById('customer-phone').value.trim();
+	const customerCity = document.getElementById('customer-city').value.trim();
+	const items = Array.from(document.querySelectorAll('.product-wrap .product-list')).map((productEl) => ({
+		product_id: parseInt(productEl.dataset.id, 10) || 0,
+		quantity: parseInt(productEl.querySelector('input[name="qty"]')?.value, 10) || 0
+	}));
 
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('td');
-        if (cols.length === 4) {
-            items.push({
-                product_name: cols[0].innerText.replace(/^\d+\.\s*/, ''),
-                price: parseFloat(cols[1].innerText.replace(/[^\d.]/g, '')) || 0,
-                quantity: parseInt(cols[2].innerText) || 0,
-                total: parseFloat(cols[3].innerText.replace(/[^\d.]/g, '')) || 0
-            });
-        }
-    });
+	if (!items.length) {
+		alert('Add at least one product before checkout.');
+		return;
+	}
 
-    if (!items.length) {
-        alert("No products to save!");
-        return;
-    }
+	const order = {
+		customer_id: parseInt(window.currentPosCustomerId, 10) || 0,
+		subtotal: parseFloat(document.getElementById('receipt-subtotal').innerText) || 0,
+		discount: parseFloat(document.getElementById('receipt-discount').innerText) || 0,
+		shipping: parseFloat(document.getElementById('receipt-shipping').innerText) || 0,
+		tax: parseFloat(document.getElementById('receipt-tax').innerText) || 0,
+		grand_total: parseFloat(document.getElementById('receipt-grandtotal').innerText) || 0,
+		invoice_number: document.getElementById('receipt-transaction').innerText.replace('#', '').trim(),
+		payment_method: window.currentPosPaymentMethod || 'cash'
+	};
 
-    fetch(saveOrderUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order: order, items: items })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Save Response:", data);
-        if (data.status === 'success') {
-            // ✅ Show receipt modal first
-            const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
-            receiptModal.show();
+	const payload = { order, items };
+	if (customerName && customerContact) {
+		payload.customer = { name: customerName, contact: customerContact, city: customerCity };
+	}
 
-            // ✅ Attach a click handler to print AFTER modal is shown
-            document.getElementById('printReceiptBtn').onclick = function() {
-                printReceipt();
-            };
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(err => console.error("Fetch Error:", err));
+	window.posOrderSaving = true;
+	fetch(saveOrderUrl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(payload)
+	})
+		.then(async (response) => {
+			const result = await response.json();
+			if (!response.ok || result.status !== 'success') {
+				throw new Error(result.message || 'Could not save checkout.');
+			}
+			return result;
+		})
+		.then((result) => {
+			window.currentPosCustomerId = result.customer_id;
+			document.getElementById('receipt-id').innerText = String(result.customer_id || '');
+			document.getElementById('printReceiptBtn').onclick = printReceipt;
+			alert('Order saved successfully.');
+		})
+		.catch((error) => {
+			alert(error.message);
+		})
+		.finally(() => {
+			window.posOrderSaving = false;
+		});
 }
 
 
@@ -2449,3 +2382,90 @@ function saveOrderFromReceipt() {
     document.body.innerHTML = originalContents;
     window.location.reload(); // reload page to restore JS and UI
   }
+
+  // RazorPay
+
+  $(document).ready(function(){
+
+    $('#razorpayBtn').click(function(){
+
+        let amount = parseFloat($('#grand-total').text());
+
+        if(amount <= 0 || isNaN(amount))
+        {
+            alert('Please add products first');
+            return;
+        }
+
+        $.ajax({
+            url: "<?php echo base_url('pos/createOrder'); ?>",
+            type: "POST",
+            data: {
+                amount: amount
+            },
+            dataType: "json",
+
+            success: function(res){
+
+                var options = {
+
+                    key: res.key,
+
+                    amount: res.amount,
+
+                    currency: "INR",
+
+                    name: "POS Billing",
+
+                    description: "Sales Payment",
+
+                    order_id: res.order_id,
+
+                    handler: function(response){
+
+                        $.ajax({
+
+                            url: "<?php echo base_url('pos/paymentSuccess'); ?>",
+
+                            type: "POST",
+
+                            data: {
+
+                                payment_id:
+                                response.razorpay_payment_id,
+
+                                order_id:
+                                response.razorpay_order_id,
+
+                                signature:
+                                response.razorpay_signature,
+
+                                amount: amount
+
+                            },
+
+                            success: function(data){
+
+                                alert('Payment Successful');
+
+                                location.reload();
+
+                            }
+
+                        });
+
+                    }
+
+                };
+
+                var rzp = new Razorpay(options);
+
+                rzp.open();
+
+            }
+
+        });
+
+    });
+
+});

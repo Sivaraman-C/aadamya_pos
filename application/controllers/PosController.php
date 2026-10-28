@@ -1,7 +1,9 @@
 <?php 
 
 defined('BASEPATH') OR exit ('no direct script access allowed');
+require_once APPPATH . '../vendor/autoload.php';
 
+use Razorpay\Api\Api;
 
 /**
  * 
@@ -19,6 +21,17 @@ class PosController extends CI_Controller
 		$this->load->model('PosModel');
 		$this->PosModel->addCustomer();
 	}
+
+    public function saveCheckoutCustomer()
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $this->load->model('PosModel');
+        $response = $this->PosModel->saveCheckoutCustomer($data);
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
+    }
 
 	public function Pointofsales()
 	{
@@ -52,106 +65,63 @@ public function paymentComplete()
 
 public function save_order_with_items()
 {
-    $this->db->trans_start(); // Begin transaction
+    $data = json_decode(file_get_contents('php://input'), true);
+    $this->load->model('PosModel');
+    $response = $this->PosModel->saveCheckout($data);
 
-    $raw = file_get_contents('php://input');
-    $data = json_decode($raw, true);
-
-    if (empty($data['order']) || empty($data['items']) || !is_array($data['items'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Missing or invalid order or items']);
-        $this->db->trans_complete(); // Rollback on failure
-        return;
-    }
-
-    // Prepare order data
-    $orderData = [
-        'customer_id'    => $data['order']['customer_id'],
-        'customer_name'  => $data['order']['customer_name'],
-        'contact'        => $data['order']['contact'],
-        'order_date'     => date('Y-m-d H:i:s'),
-        'subtotal'       => $data['order']['subtotal'],
-        'discount'       => $data['order']['discount'],
-        'shipping'       => $data['order']['shipping'],
-        'tax'            => $data['order']['tax'],
-        'grand_total'    => $data['order']['grand_total'],
-        'invoice_number' => $data['order']['invoice_number']
-    ];
-
-    // Insert order into orders table
-    $this->db->insert('orders', $orderData);
-    $orderId = $this->db->insert_id();
-
-    if (!$orderId) {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to insert order']);
-        $this->db->trans_complete(); // Rollback on failure
-        return;
-    }
-
-    // Prepare and validate order items
-    $orderItems = [];
-    foreach ($data['items'] as $item) {
-        if (empty($item['product_name']) || !isset($item['quantity'], $item['price'], $item['total'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid item data', 'item' => $item]);
-            $this->db->trans_complete(); // Rollback on failure
-            return;
-        }
-
-        // Lookup product ID by product_name
-        $this->db->where('product_name', $item['product_name']);
-        $product = $this->db->get('product')->row();
-
-        if (!$product) {
-            echo json_encode(['status' => 'error', 'message' => "Product not found: {$item['product_name']}"]);
-            $this->db->trans_complete(); // Rollback on failure
-            return;
-        }
-
-        // Prepare order item data
-        $orderItems[] = [
-            'order_id'   => $orderId,
-            'product_id' => $product->id,
-            'product_name'=> $product->product_name,
-            'quantity'   => $item['quantity'],
-            'price'      => $item['price'],
-            'total'      => $item['total']
-        ];
-    }
-
-    // Insert order items into order_items table
-    $inserted = $this->db->insert_batch('order_items', $orderItems);
-    if (!$inserted) {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to insert order items']);
-        $this->db->trans_complete(); // Rollback on failure
-        return;
-    }
-
-    // Update product quantities after the order is placed
-    foreach ($orderItems as $item) {
-        $this->db->where('id', $item['product_id']);
-        $product = $this->db->get('product')->row();
-
-        if ($product) {
-            $newQuantity = (int)$product->quantity - (int)$item['quantity'];
-            $newQuantity = max(0, $newQuantity);  // Prevent negative stock
-
-            // Update the product's quantity
-            $this->db->where('id', $item['product_id']);
-            $this->db->update('product', ['quantity' => $newQuantity]);
-        }
-    }
-
-    // Commit transaction if everything is successful
-    $this->db->trans_complete(); // Finalize transaction
-
-    // Check if transaction was successful
-    if ($this->db->trans_status() === FALSE) {
-        echo json_encode(['status' => 'error', 'message' => 'Transaction failed']);
-    } else {
-        echo json_encode(['status' => 'success', 'order_id' => $orderId]);
-    }
+    return $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($response));
 }
 
+// RazorPay
 
+public function createOrder()
+{
+    $amount = $this->input->post('amount');
+
+    $key = "rzp_test_Sx1LMQsP69j8Lg";
+    $secret = "ch6y7QXKbKXjA5Jq7XIKC9F4";
+
+    $api = new Api($key, $secret);
+
+    $order = $api->order->create([
+        'receipt' => 'INV' . time(),
+        'amount' => $amount * 100,
+        'currency' => 'INR'
+    ]);
+
+    echo json_encode([
+        'order_id' => $order['id'],
+        'amount' => $order['amount'],
+        'key' => $key
+    ]);
+}
+
+public function paymentSuccess()
+{
+    $paymentData = [
+        'order_id'   => $this->input->post('order_id'),
+        'payment_id' => $this->input->post('payment_id'),
+        'amount'     => $this->input->post('amount'),
+        'status'     => 'Paid',
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+
+    $this->db->insert('payments', $paymentData);
+
+    echo json_encode([
+        'status' => true
+    ]);
+}
+
+// Test
+public function testRazorpay()
+{
+    $api = new Api('test', 'test');
+
+    echo "Razorpay SDK Loaded Successfully";
+}
 
 }
 

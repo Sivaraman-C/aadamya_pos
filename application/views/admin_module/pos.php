@@ -235,40 +235,17 @@ $this->load->view('master_pages/pos_header'); ?>
 							<aside class="product-order-list">
 								<div class="customer-info block-section">
 								  <h4 class="mb-3">Customer Information</h4>
-								  
-								  <div class="input-block d-flex align-items-center">
-								    <div class="flex-grow-1">
-								      <select class="form-select" id="customer-select">
-								        <option value="0" data-phone="" data-city="">Walk in Customer</option>
-								        <?php
-								          $customers = $this->db->get('customer')->result();
-								          foreach ($customers as $cust) {
-								            echo '<option value="' . $cust->id . '" 
-								                        data-phone="' . $cust->contact . '" 
-								                        data-city="' . $cust->city . '" 
-								                        data-id="' . $cust->id . '" 
-								                        data-creationDate="' . $cust->creationDate . '">' . 
-								                 htmlspecialchars($cust->name) . 
-								                 '</option>';
-								          }
-								        ?>
-								      </select>
-								    </div>
-								    <a href="#" class="btn btn-primary btn-icon" data-bs-toggle="modal" data-bs-target="#create">
-								      <i data-feather="user-plus"></i>
-								    </a>
+								  <div class="input-block mb-2">
+								    <label for="customer-name">Name</label>
+								    <input type="text" id="customer-name" class="form-control" placeholder="Walk-in Customer">
 								  </div>
-
-								  <!-- Auto-filled Fields -->
-
-								  <div class="input-block mt-3">
-								    <label>Phone</label>
-								    <input type="text" id="customer-phone" class="form-control" readonly>
+								  <div class="input-block mb-2">
+								    <label for="customer-phone">Phone</label>
+								    <input type="tel" id="customer-phone" class="form-control" placeholder="Customer phone number">
 								  </div>
-
-								  <div class="input-block mt-2">
-								    <label>City</label>
-								    <input type="text" id="customer-city" class="form-control" readonly>
+								  <div class="input-block">
+								    <label for="customer-city">City</label>
+								    <input type="text" id="customer-city" class="form-control" placeholder="City">
 								  </div>
 								</div>
 
@@ -382,6 +359,13 @@ $this->load->view('master_pages/pos_header'); ?>
 												<span>Scan</span>
 											</a>
 										</div>
+										<!-- Razorpay -->
+        <div class="col-sm-6 col-md-3">
+            <a href="javascript:void(0);" class="payment-item" id="razorpayBtn">
+                <i class="fa fa-credit-card me-2"></i>
+                <span>Online Pay</span>
+            </a>
+        </div>
 									</div>
 								</div>
 								<div class="btn-row d-sm-flex align-items-center justify-content-between">
@@ -418,7 +402,7 @@ $this->load->view('master_pages/pos_header'); ?>
     Print Receipt <i class="feather-arrow-right-circle icon-me-5"></i>
 </button>
 
-									<button type="submit" class="btn btn-md btn-primary">Next Order</button>
+									<button type="submit" class="btn btn-md btn-primary" onclick="generateInvoiceNumber(); saveOrderFromReceipt();">Next Order</button>
 								</div>
 							</form>
 						</div>
@@ -529,7 +513,7 @@ $this->load->view('master_pages/pos_header'); ?>
 							<span aria-hidden="true">×</span>
 						</button>
 					</div>
-					<form action="<?php echo base_url('createCustomer') ?>" method="POST" enctype="multipart/form-data">
+					<form id="create-customer-form" action="<?php echo base_url('createCustomer') ?>" method="POST" enctype="multipart/form-data">
 						<div class="modal-body pb-1">
 							<div class="row">
 								<div class="col-lg-6 col-sm-12 col-12">
@@ -1248,6 +1232,7 @@ $this->load->view('master_pages/pos_header'); ?>
 		<script src="<?php echo base_url(); ?>modules/assets/js/theme-colorpicker.js" type="f19eba6cac2c5bdf6aa2d583-text/javascript"></script>
 		<script src="<?php echo base_url(); ?>modules/assets/js/calculator.js" type="f19eba6cac2c5bdf6aa2d583-text/javascript"></script>
 		<script>const saveOrderUrl = "<?= base_url('save_order_with_items') ?>";</script>
+		<script>const saveCheckoutCustomerUrl = "<?= base_url('saveCheckoutCustomer') ?>";</script>
 		<script>
     const BASE_URL = "<?php echo base_url(); ?>";
 </script>
@@ -1255,6 +1240,7 @@ $this->load->view('master_pages/pos_header'); ?>
 		<script src="<?php echo base_url(); ?>modules/assets/js/script.js" type="f19eba6cac2c5bdf6aa2d583-text/javascript"></script>
 	
 	<script src="<?php echo base_url(); ?>modules/assets/js/rocket-loader.min.js" data-cf-settings="f19eba6cac2c5bdf6aa2d583-|49" defer></script>
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
 

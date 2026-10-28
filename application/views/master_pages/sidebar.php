@@ -7,7 +7,7 @@
 			<!-- Logo -->
 			<div class="sidebar-logo">
 				<a href="index.html" class="logo logo-normal">
-					<img src="<?php echo base_url(); ?>modules/assets/img/logo.svg" alt="Img">
+					<img src="<?php echo base_url(); ?>modules/assets/img/pos_logo.png" alt="Img">
 				</a>
 				<a href="index.html" class="logo logo-white">
 					<img src="<?php echo base_url(); ?>modules/assets/img/logo-white.svg" alt="Img">
@@ -887,7 +887,7 @@
 					<!-- Logo -->
 					<div class="sidebar-logo">
 						<a href="index.html" class="logo logo-normal">
-							<img src="<?php echo base_url(); ?>modules/assets/img/logo.svg" alt="Img">
+							<img src="<?php echo base_url(); ?>modules/assets/img/pos_logo.png" alt="Img">
 						</a>
 						<a href="index.html" class="logo logo-white">
 							<img src="<?php echo base_url(); ?>modules/assets/img/logo-white.svg" alt="Img">
